@@ -2,12 +2,12 @@
 
 MVP web de um sistema PDV e ERP whitelabel, criado para uma operação comercial boliviana com vendas no varejo e no atacado.
 
-O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`). A experiência operacional toma como referência a agilidade de sistemas como o NEX, mantendo interface e identidade próprias.
+O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`). A experiência operacional e a arquitetura visual foram redesenhadas após um estudo do NEX Web: menu lateral compacto, páginas orientadas a tabelas, formulários em tela própria e PDV em tela cheia dividido entre itens e resumo. A identidade e a implementação permanecem próprias.
 
 ## Funcionalidades disponíveis
 
-- painel geral com vendas, estoque, contas a receber e atividade recente;
-- PDV rápido com pesquisa, leitura por código, carrinho, preço varejista/atacadista e atalho `F2`;
+- histórico de vendas como tela inicial, com pedidos e orçamentos;
+- PDV em tela cheia com pesquisa, leitura por código, carrinho, preço varejista/atacadista e atalho `F3`;
 - pagamentos por dinheiro, PIX, QR, transferência e conta do cliente;
 - cadastro e controle de produtos, estoque mínimo, custo e dois preços de venda;
 - cadastro de clientes com foto, classificação e conta corrente de crédito/débito;
@@ -17,7 +17,7 @@ O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`
 - personalização whitelabel de nome, razão social, NIT, cidade e cor principal;
 - exportação e importação CSV de produtos, clientes e funcionários;
 - backup e restauração completa em JSON;
-- layout responsivo para computador, tablet e celular;
+- layout compacto inspirado no fluxo operacional do NEX Web e responsivo para computador, tablet e celular;
 - persistência local para que a demonstração continue funcionando após atualizar a página.
 
 ## Executar localmente
