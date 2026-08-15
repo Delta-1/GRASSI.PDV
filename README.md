@@ -7,18 +7,34 @@ O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`
 ## Funcionalidades disponíveis
 
 - histórico de vendas como tela inicial, com pedidos e orçamentos;
+- login separado para administrador e funcionário, permissões e sessão persistente;
 - PDV em tela cheia com pesquisa, leitura por código, carrinho, preço varejista/atacadista e atalho `F3`;
+- terminal independente em `pdv.html`, responsivo para celular, tablet e computador;
+- editor visual do PDV com controles arrastáveis, posição lateral/inferior e densidade configurável;
 - pagamentos por dinheiro, PIX, QR, transferência e conta do cliente;
 - cadastro e controle de produtos, estoque mínimo, custo e dois preços de venda;
 - cadastro de clientes com foto, classificação e conta corrente de crédito/débito;
 - cadastro de funcionários com foto e métricas individuais de vendas, faturamento, ticket médio e metas;
 - fluxo financeiro com entradas, saídas, saldo e fechamento de caixa;
 - relatórios imprimíveis;
-- personalização whitelabel de nome, razão social, NIT, cidade e cor principal;
+- personalização whitelabel de nome, razão social, NIT e cidade;
+- modo claro, escuro ou automático e cinco paletas de cor;
 - exportação e importação CSV de produtos, clientes e funcionários;
 - backup e restauração completa em JSON;
 - layout compacto inspirado no fluxo operacional do NEX Web e responsivo para computador, tablet e celular;
-- persistência local para que a demonstração continue funcionando após atualizar a página.
+- navegação SPA sem recarregar a página ou voltar para o início durante cadastros;
+- persistência local para que a demonstração continue funcionando após atualizar a página;
+- PWA instalável com shell offline;
+- integração Supabase preparada, com PostgreSQL, RLS multiempresa e venda transacional.
+
+## Acessos da demonstração
+
+| Perfil | E-mail | Senha |
+|---|---|---|
+| Administrador | `admin@example.invalid` | `admin123` |
+| Funcionário | `employee@example.invalid` | `func123` |
+
+O modo demonstração é definido em `config.js`. Não use essas credenciais como usuários reais.
 
 ## Executar localmente
 
@@ -28,7 +44,10 @@ Não há dependências ou processo de build. Abra `index.html` diretamente ou us
 python3 -m http.server 4173
 ```
 
-Depois acesse `http://localhost:4173`.
+Depois acesse:
+
+- painel ERP: `http://localhost:4173/index.html`;
+- terminal PDV separado: `http://localhost:4173/pdv.html`.
 
 ## Publicação
 
@@ -42,19 +61,16 @@ Em **Settings → Pages**, selecione **Deploy from a branch**, branch `main` e d
 
 Importe o repositório e mantenha as configurações padrão. O arquivo `vercel.json` já está incluído.
 
-## Arquitetura atual e próxima fase
+## Integração Supabase opcional
 
-Esta primeira versão é uma demonstração funcional e salva dados no `localStorage` do navegador. A evolução para produção deverá adicionar:
+O sistema continua operacional sem um projeto Supabase. Quando houver um projeto disponível, siga [docs/PRODUCTION.md](docs/PRODUCTION.md). A preparação inclui:
 
-- autenticação e permissões por cargo;
-- banco PostgreSQL/Supabase com isolamento por empresa;
-- API para sincronização web, aplicativo e executável;
-- operação offline com fila de sincronização;
-- impressão térmica, leitor, balança e gaveta de dinheiro;
-- auditoria, cancelamentos, trocas e devoluções;
-- contas a pagar/receber, fornecedores, compras e DRE completa;
-- adequação fiscal e documental conforme a operação na Bolívia;
-- armazenamento seguro de imagens e backups automáticos.
+- `backend.js`: adaptador entre modo local e Supabase;
+- `supabase/schema.sql`: tabelas, índices, RLS, permissões e RPCs atômicas;
+- `supabase/bootstrap.sql.example`: criação segura da primeira empresa/administrador;
+- `supabase/functions/invite-user`: base para convite de funcionários sem expor `service_role`.
+
+Pendências antes de uma operação comercial real: homologar fiscal/documental para a Bolívia, impressão térmica, cancelamentos/devoluções, fila de vendas offline e backups monitorados.
 
 ## Aviso
 

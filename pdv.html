@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#0098f9" />
+    <meta name="description" content="Terminal de venta GRASSI para celular y computadora." />
+    <title>GRASSI — Terminal PDV</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./assets/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-mode="standalone-pos">
+    <main class="standalone-workspace" id="app" tabindex="-1"></main>
+    <div class="app-layer" id="layer" hidden><div id="layerContent"></div></div>
+    <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+    <input type="file" id="importInput" accept=".json,.csv" hidden />
+    <script src="./config.js"></script>
+    <script src="./backend.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

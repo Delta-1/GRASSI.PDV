@@ -6,12 +6,14 @@
     <meta name="theme-color" content="#0098f9" />
     <meta name="description" content="GRASSI PDV — ventas, clientes, inventario, caja e informes." />
     <title>GRASSI PDV</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./assets/icon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body>
+  <body data-mode="admin">
     <section class="nex-shell">
       <aside class="nex-navbar" id="sidebar">
         <button class="menu-toggle" id="menuToggle" aria-label="Expandir menú"><span data-icon="menu"></span><strong id="miniBrand">G</strong></button>
@@ -36,6 +38,8 @@
     <div class="app-layer" id="layer" hidden><div id="layerContent"></div></div>
     <div class="toast-region" id="toastRegion" aria-live="polite"></div>
     <input type="file" id="importInput" accept=".json,.csv" hidden />
+    <script src="./config.js"></script>
+    <script src="./backend.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

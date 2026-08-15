@@ -1,0 +1,17 @@
+{
+  "name": "GRASSI PDV & ERP",
+  "short_name": "GRASSI",
+  "lang": "es-BO",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7f9",
+  "theme_color": "#0098f9",
+  "description": "Ventas, inventario, clientes, caja e informes en bolivianos.",
+  "icons": [
+    {"src":"./assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ],
+  "shortcuts": [
+    {"name":"Abrir PDV","short_name":"PDV","url":"./pdv.html"}
+  ]
+}
