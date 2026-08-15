@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#166534" />
+    <meta name="description" content="GRASSI PDV — ventas, inventario, cuentas y gestión comercial." />
+    <title>GRASSI PDV</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <div class="brand-mark" id="brandMark">G</div>
+          <div class="brand-copy">
+            <strong id="brandName">GRASSI</strong>
+            <span>PDV &amp; Gestión</span>
+          </div>
+          <button class="icon-btn sidebar-close" id="sidebarClose" aria-label="Cerrar menú" data-icon="x"></button>
+        </div>
+
+        <nav class="nav" aria-label="Navegación principal">
+          <button class="nav-item active" data-view="dashboard"><span data-icon="grid"></span><span>Inicio</span></button>
+          <button class="nav-item" data-view="pos"><span data-icon="cart"></span><span>Punto de venta</span><kbd>F2</kbd></button>
+          <button class="nav-item" data-view="products"><span data-icon="box"></span><span>Productos</span></button>
+          <button class="nav-item" data-view="clients"><span data-icon="users"></span><span>Clientes</span></button>
+          <button class="nav-item" data-view="employees"><span data-icon="badge"></span><span>Funcionarios</span></button>
+          <button class="nav-item" data-view="finance"><span data-icon="chart"></span><span>Finanzas</span></button>
+          <div class="nav-divider"></div>
+          <button class="nav-item" data-view="settings"><span data-icon="settings"></span><span>Configuración</span></button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-mini">
+            <div class="avatar avatar-green">VH</div>
+            <div><strong>Victor H. Souza</strong><span>Administrador</span></div>
+            <span class="status-dot" title="En línea"></span>
+          </div>
+        </div>
+      </aside>
+
+      <div class="overlay" id="overlay"></div>
+
+      <section class="workspace">
+        <header class="topbar">
+          <button class="icon-btn menu-btn" id="menuBtn" aria-label="Abrir menú" data-icon="menu"></button>
+          <div class="page-heading">
+            <p id="pageEyebrow">Resumen general</p>
+            <h1 id="pageTitle">Buenos días, Victor</h1>
+          </div>
+          <div class="topbar-actions">
+            <div class="register-status"><span></span><div><small>Caja abierta</small><strong id="liveClock">--:--</strong></div></div>
+            <button class="icon-btn notification-btn" aria-label="Notificaciones" data-icon="bell"><i></i></button>
+            <button class="primary-btn compact" data-go="pos"><span data-icon="plus"></span>Nueva venta</button>
+          </div>
+        </header>
+
+        <main id="app" tabindex="-1"></main>
+      </section>
+    </div>
+
+    <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+    <dialog class="modal" id="modal"><div id="modalContent"></div></dialog>
+    <input type="file" id="importInput" accept=".json,.csv" hidden />
+    <script src="./app.js"></script>
+  </body>
+</html>
