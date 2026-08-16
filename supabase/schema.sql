@@ -95,6 +95,15 @@ create table public.business_settings (
   updated_at timestamptz not null default now()
 );
 
+create table public.audit_logs (
+  id uuid primary key default gen_random_uuid(), business_id uuid not null references public.businesses(id) on delete cascade,
+  user_id uuid references auth.users(id) on delete set null, user_name text not null, user_email text, user_role text,
+  module text not null, action text not null, details text, level text not null default 'info',
+  terminal_id text, channel text, user_agent text, created_at timestamptz not null default now()
+);
+create index audit_logs_business_date_idx on public.audit_logs(business_id,created_at desc);
+create index audit_logs_user_date_idx on public.audit_logs(business_id,user_id,created_at desc);
+
 create or replace function public.is_member(p_business_id uuid) returns boolean language sql stable security definer set search_path=public as $$
   select exists(select 1 from memberships where business_id=p_business_id and user_id=(select auth.uid()) and active);
 $$;
@@ -107,6 +116,7 @@ alter table public.products enable row level security; alter table public.client
 alter table public.client_ledger enable row level security; alter table public.sales enable row level security;
 alter table public.sale_items enable row level security; alter table public.cash_movements enable row level security;
 alter table public.business_settings enable row level security;
+alter table public.audit_logs enable row level security;
 
 create policy businesses_select on public.businesses for select to authenticated using (public.is_member(id));
 create policy businesses_admin_update on public.businesses for update to authenticated using (public.is_admin(id)) with check (public.is_admin(id));
@@ -124,6 +134,7 @@ create policy cash_select on public.cash_movements for select to authenticated u
 create policy cash_insert on public.cash_movements for insert to authenticated with check (public.is_member(business_id));
 create policy settings_select on public.business_settings for select to authenticated using (public.is_member(business_id));
 create policy settings_admin_write on public.business_settings for all to authenticated using (public.is_admin(business_id)) with check (public.is_admin(business_id));
+create policy audit_logs_admin_select on public.audit_logs for select to authenticated using (public.is_admin(business_id));
 
 create or replace function public.record_client_movement(p_business_id uuid,p_client_id uuid,p_kind public.ledger_kind,p_amount numeric,p_description text)
 returns uuid language plpgsql security definer set search_path=public as $$
@@ -137,13 +148,14 @@ begin
   return movement_id;
 end $$;
 
-create or replace function public.register_sale(p_business_id uuid,p_client_id uuid,p_payment_method text,p_items jsonb,p_notes text default null,p_client_sale_id text default null)
+create or replace function public.register_sale(p_business_id uuid,p_client_id uuid,p_payment_method text,p_items jsonb,p_notes text default null,p_client_sale_id text default null,p_kind text default 'Venta')
 returns uuid language plpgsql security definer set search_path=public as $$
 declare s_id uuid; item jsonb; p products%rowtype; total_value numeric(14,2):=0; qty numeric(14,3); unit_value numeric(14,2); member memberships%rowtype; number_value text; customer_name text;
 begin
   select * into member from memberships where business_id=p_business_id and user_id=auth.uid() and active;
   if not found then raise exception 'access denied'; end if;
   if p_client_sale_id is null or length(trim(p_client_sale_id))<8 then raise exception 'invalid client sale id'; end if;
+  if p_kind not in ('Venta','Pedido','Presupuesto') then raise exception 'invalid sale kind'; end if;
   select id into s_id from sales where business_id=p_business_id and client_sale_id=p_client_sale_id;
   if found then return s_id; end if;
   if jsonb_array_length(p_items)=0 then raise exception 'empty sale'; end if;
@@ -151,34 +163,51 @@ begin
   for item in select * from jsonb_array_elements(p_items) loop
     qty=(item->>'quantity')::numeric; unit_value=(item->>'unit_price')::numeric;
     select * into p from products where id=(item->>'product_id')::uuid and business_id=p_business_id for update;
-    if not found or p.stock<qty then raise exception 'insufficient stock for %',coalesce(p.name,'product'); end if;
+    if not found or (p_kind='Venta' and p.stock<qty) then raise exception 'insufficient stock for %',coalesce(p.name,'product'); end if;
     total_value=total_value+(qty*unit_value);
   end loop;
-  number_value='V'||to_char(now(),'YYMMDDHH24MISSMS');
+  number_value=case p_kind when 'Pedido' then 'P' when 'Presupuesto' then 'O' else 'V' end||to_char(now(),'YYMMDDHH24MISSMS');
   select name into customer_name from clients where id=p_client_id and business_id=p_business_id;
-  insert into sales(business_id,sale_number,client_sale_id,client_id,client_name,seller_id,seller_name,payment_method,subtotal,total,notes) values(p_business_id,number_value,p_client_sale_id,p_client_id,coalesce(customer_name,'Consumidor final'),auth.uid(),member.display_name,p_payment_method,total_value,total_value,p_notes) returning id into s_id;
+  insert into sales(business_id,sale_number,client_sale_id,kind,client_id,client_name,seller_id,seller_name,payment_method,subtotal,total,notes) values(p_business_id,number_value,p_client_sale_id,p_kind,p_client_id,coalesce(customer_name,'Consumidor final'),auth.uid(),member.display_name,p_payment_method,total_value,total_value,p_notes) returning id into s_id;
   for item in select * from jsonb_array_elements(p_items) loop
     qty=(item->>'quantity')::numeric; unit_value=(item->>'unit_price')::numeric;
     select * into p from products where id=(item->>'product_id')::uuid and business_id=p_business_id for update;
-    update products set stock=stock-qty,updated_at=now() where id=p.id;
+    if p_kind='Venta' then update products set stock=stock-qty,updated_at=now() where id=p.id; end if;
     insert into sale_items(business_id,sale_id,product_id,product_name,quantity,unit_price,total) values(p_business_id,s_id,p.id,p.name,qty,unit_value,qty*unit_value);
   end loop;
-  if p_client_id is not null then
+  if p_kind='Venta' and p_client_id is not null then
     update clients set purchases=purchases+1,total_purchased=total_purchased+total_value,updated_at=now() where id=p_client_id and business_id=p_business_id;
     if p_payment_method='Cuenta cliente' then perform record_client_movement(p_business_id,p_client_id,'debit',total_value,'Venta '||number_value); end if;
   end if;
-  update memberships set sales_count=sales_count+1,sales_total=sales_total+total_value,average_ticket=(sales_total+total_value)/(sales_count+1) where business_id=p_business_id and user_id=auth.uid();
-  if p_payment_method<>'Cuenta cliente' then insert into cash_movements(business_id,kind,description,amount,employee_id,employee_name,sale_id) values(p_business_id,'in','Venta '||number_value||' — '||p_payment_method,total_value,auth.uid(),member.display_name,s_id); end if;
+  if p_kind='Venta' then
+    update memberships set sales_count=sales_count+1,sales_total=sales_total+total_value,average_ticket=(sales_total+total_value)/(sales_count+1) where business_id=p_business_id and user_id=auth.uid();
+    if p_payment_method<>'Cuenta cliente' then insert into cash_movements(business_id,kind,description,amount,employee_id,employee_name,sale_id) values(p_business_id,'in','Venta '||number_value||' — '||p_payment_method,total_value,auth.uid(),member.display_name,s_id); end if;
+  end if;
   return s_id;
 end $$;
 
 revoke all on function public.record_client_movement(uuid,uuid,public.ledger_kind,numeric,text) from public;
 grant execute on function public.record_client_movement(uuid,uuid,public.ledger_kind,numeric,text) to authenticated;
-revoke all on function public.register_sale(uuid,uuid,text,jsonb,text,text) from public;
-grant execute on function public.register_sale(uuid,uuid,text,jsonb,text,text) to authenticated;
+create or replace function public.record_audit_event(p_business_id uuid,p_module text,p_action text,p_details text default null,p_level text default 'info',p_terminal_id text default null,p_channel text default null,p_user_agent text default null)
+returns uuid language plpgsql security definer set search_path=public as $$
+declare log_id uuid; member memberships%rowtype;
+begin
+  select * into member from memberships where business_id=p_business_id and user_id=auth.uid() and active;
+  if not found then raise exception 'access denied'; end if;
+  if length(trim(coalesce(p_action,'')))=0 then raise exception 'invalid action'; end if;
+  insert into audit_logs(business_id,user_id,user_name,user_email,user_role,module,action,details,level,terminal_id,channel,user_agent)
+  values(p_business_id,auth.uid(),member.display_name,member.email,member.role::text,coalesce(nullif(trim(p_module),''),'Sistema'),trim(p_action),p_details,coalesce(nullif(trim(p_level),''),'info'),p_terminal_id,p_channel,p_user_agent)
+  returning id into log_id;
+  return log_id;
+end $$;
+
+revoke all on function public.record_audit_event(uuid,text,text,text,text,text,text,text) from public;
+grant execute on function public.record_audit_event(uuid,text,text,text,text,text,text,text) to authenticated;
+revoke all on function public.register_sale(uuid,uuid,text,jsonb,text,text,text) from public;
+grant execute on function public.register_sale(uuid,uuid,text,jsonb,text,text,text) to authenticated;
 
 grant usage on schema public to authenticated;
-grant select on public.businesses,public.memberships,public.products,public.clients,public.client_ledger,public.sales,public.sale_items,public.cash_movements,public.business_settings to authenticated;
+grant select on public.businesses,public.memberships,public.products,public.clients,public.client_ledger,public.sales,public.sale_items,public.cash_movements,public.business_settings,public.audit_logs to authenticated;
 grant insert on public.clients,public.cash_movements to authenticated;
 grant insert,update,delete on public.products,public.memberships,public.business_settings to authenticated;
 grant update on public.businesses,public.clients to authenticated;

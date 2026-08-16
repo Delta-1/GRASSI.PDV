@@ -8,7 +8,7 @@ O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`
 
 - histórico de vendas como tela inicial, com pedidos e orçamentos;
 - login separado para administrador e funcionário, permissões e sessão persistente;
-- PDV em tela cheia com pesquisa, leitura por código, carrinho, preço varejista/atacadista e atalho `F3`;
+- PDV em tela cheia com pesquisa, leitura por código, carrinho, preço varejista/atacadista, abertura dedicada por `F3` e orçamento de compra teste por `F7`;
 - terminal independente em `pdv.html`, responsivo para celular, tablet e computador;
 - editor visual do PDV com controles arrastáveis, posição lateral/inferior e densidade configurável;
 - pagamentos por dinheiro, PIX, QR, transferência e conta do cliente;
@@ -19,13 +19,16 @@ O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`
 - relatórios imprimíveis;
 - personalização whitelabel de nome, razão social, NIT e cidade;
 - modo claro, escuro ou automático e cinco paletas de cor;
-- exportação e importação CSV de produtos, clientes e funcionários;
+- importação universal de produtos e clientes com prévia, mapeamento de colunas, modelos CSV e suporte a CSV, TSV, XLS e XLSX;
+- logs de auditoria com usuário, horário, módulo, terminal/dispositivo e console de eventos somente leitura;
+- exportação CSV de produtos, clientes e funcionários;
 - backup e restauração completa em JSON;
 - layout compacto inspirado no fluxo operacional do NEX Web e responsivo para computador, tablet e celular;
 - navegação SPA sem recarregar a página ou voltar para o início durante cadastros;
 - persistência local para que a demonstração continue funcionando após atualizar a página;
+- demonstração sem baixa de estoque por padrão, com simulação opcional nas configurações;
 - PWA instalável com shell offline;
-- integração Supabase preparada, com PostgreSQL, RLS multiempresa e venda transacional.
+- integração Supabase preparada, com PostgreSQL, RLS multiempresa e venda transacional com baixa obrigatória e atômica de estoque.
 
 ## Acessos da demonstração
 
