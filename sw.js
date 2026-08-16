@@ -1,4 +1,4 @@
-const CACHE = 'grassi-shell-v14';
+const CACHE = 'grassi-shell-v15';
 const CORE = ['./','./index.html','./pdv.html','./styles.css','./config.js','./backend.js','./app.js','./manifest.webmanifest','./assets/icon.svg'];
 
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting())));
