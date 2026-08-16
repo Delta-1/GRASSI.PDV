@@ -66,10 +66,10 @@ create index client_ledger_client_idx on public.client_ledger(business_id,client
 
 create table public.sales (
   id uuid primary key default gen_random_uuid(), business_id uuid not null references public.businesses(id) on delete cascade,
-  sale_number text not null, kind text not null default 'Venta', client_id uuid references public.clients(id), client_name text,
+  sale_number text not null, client_sale_id text not null, kind text not null default 'Venta', client_id uuid references public.clients(id), client_name text,
   seller_id uuid not null references auth.users(id), seller_name text not null, payment_method text not null,
   subtotal numeric(14,2) not null, discount numeric(14,2) not null default 0, total numeric(14,2) not null,
-  notes text, status text not null default 'completed', created_at timestamptz not null default now(), unique(business_id,sale_number)
+  notes text, status text not null default 'completed', created_at timestamptz not null default now(), unique(business_id,sale_number), unique(business_id,client_sale_id)
 );
 create index sales_business_date_idx on public.sales(business_id,created_at desc);
 create index sales_seller_idx on public.sales(business_id,seller_id,created_at desc);
@@ -91,7 +91,7 @@ create index cash_business_date_idx on public.cash_movements(business_id,created
 create table public.business_settings (
   business_id uuid primary key references public.businesses(id) on delete cascade,
   theme jsonb not null default '{"mode":"light","palette":"blue","accent":"#0098f9"}',
-  pos_layout jsonb not null default '{"dock":"sidebar","density":"comfortable","items":["client","wholesale","delivery","notes","payment"]}',
+  pos_layout jsonb not null default '{"dock":"sidebar","density":"comfortable","theme":"touch","items":["client","wholesale","delivery","notes","payment"]}',
   updated_at timestamptz not null default now()
 );
 
@@ -137,12 +137,15 @@ begin
   return movement_id;
 end $$;
 
-create or replace function public.register_sale(p_business_id uuid,p_client_id uuid,p_payment_method text,p_items jsonb,p_notes text default null)
+create or replace function public.register_sale(p_business_id uuid,p_client_id uuid,p_payment_method text,p_items jsonb,p_notes text default null,p_client_sale_id text default null)
 returns uuid language plpgsql security definer set search_path=public as $$
 declare s_id uuid; item jsonb; p products%rowtype; total_value numeric(14,2):=0; qty numeric(14,3); unit_value numeric(14,2); member memberships%rowtype; number_value text; customer_name text;
 begin
   select * into member from memberships where business_id=p_business_id and user_id=auth.uid() and active;
   if not found then raise exception 'access denied'; end if;
+  if p_client_sale_id is null or length(trim(p_client_sale_id))<8 then raise exception 'invalid client sale id'; end if;
+  select id into s_id from sales where business_id=p_business_id and client_sale_id=p_client_sale_id;
+  if found then return s_id; end if;
   if jsonb_array_length(p_items)=0 then raise exception 'empty sale'; end if;
   if p_client_id is not null and not exists(select 1 from clients where id=p_client_id and business_id=p_business_id) then raise exception 'invalid client'; end if;
   for item in select * from jsonb_array_elements(p_items) loop
@@ -153,7 +156,7 @@ begin
   end loop;
   number_value='V'||to_char(now(),'YYMMDDHH24MISSMS');
   select name into customer_name from clients where id=p_client_id and business_id=p_business_id;
-  insert into sales(business_id,sale_number,client_id,client_name,seller_id,seller_name,payment_method,subtotal,total,notes) values(p_business_id,number_value,p_client_id,coalesce(customer_name,'Consumidor final'),auth.uid(),member.display_name,p_payment_method,total_value,total_value,p_notes) returning id into s_id;
+  insert into sales(business_id,sale_number,client_sale_id,client_id,client_name,seller_id,seller_name,payment_method,subtotal,total,notes) values(p_business_id,number_value,p_client_sale_id,p_client_id,coalesce(customer_name,'Consumidor final'),auth.uid(),member.display_name,p_payment_method,total_value,total_value,p_notes) returning id into s_id;
   for item in select * from jsonb_array_elements(p_items) loop
     qty=(item->>'quantity')::numeric; unit_value=(item->>'unit_price')::numeric;
     select * into p from products where id=(item->>'product_id')::uuid and business_id=p_business_id for update;
@@ -171,8 +174,8 @@ end $$;
 
 revoke all on function public.record_client_movement(uuid,uuid,public.ledger_kind,numeric,text) from public;
 grant execute on function public.record_client_movement(uuid,uuid,public.ledger_kind,numeric,text) to authenticated;
-revoke all on function public.register_sale(uuid,uuid,text,jsonb,text) from public;
-grant execute on function public.register_sale(uuid,uuid,text,jsonb,text) to authenticated;
+revoke all on function public.register_sale(uuid,uuid,text,jsonb,text,text) from public;
+grant execute on function public.register_sale(uuid,uuid,text,jsonb,text,text) to authenticated;
 
 grant usage on schema public to authenticated;
 grant select on public.businesses,public.memberships,public.products,public.clients,public.client_ledger,public.sales,public.sale_items,public.cash_movements,public.business_settings to authenticated;
