@@ -1,13 +1,55 @@
-const CACHE = 'grassi-shell-v15';
-const CORE = ['./','./index.html','./pdv.html','./styles.css','./config.js','./backend.js','./app.js','./manifest.webmanifest','./assets/icon.svg'];
+const CACHE = 'grassi-shell-v17';
+const CORE = [
+  './', './index.html', './pdv.html', './styles.css?v=17', './config.js?v=17',
+  './backend.js?v=17', './app.js?v=17', './pwa.js?v=17', './manifest.webmanifest',
+  './assets/grassi-logo.png', './assets/grassi-symbol.png', './assets/icon-192.png',
+  './assets/icon-512.png', './assets/icon-maskable-192.png', './assets/icon-maskable-512.png',
+  './assets/apple-touch-icon.png', './assets/favicon.ico'
+];
 
-self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting())));
-self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key.startsWith('grassi-shell-') && key !== CACHE).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET' || new URL(event.request.url).origin !== location.origin) return;
-  if (event.request.mode === 'navigate') {
-    event.respondWith(fetch(event.request).then(response => { const copy=response.clone(); caches.open(CACHE).then(cache=>cache.put(event.request,copy)); return response; }).catch(() => caches.match(event.request).then(hit => hit || caches.match('./index.html'))));
+  const {request} = event;
+  if (request.method !== 'GET' || new URL(request.url).origin !== location.origin) return;
+
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          if (response.ok) caches.open(CACHE).then(cache => cache.put(request, response.clone()));
+          return response;
+        })
+        .catch(async () => {
+          const cachedPage = await caches.match(request, {ignoreSearch: true});
+          if (cachedPage) return cachedPage;
+          return caches.match(request.url.includes('/pdv') ? './pdv.html' : './index.html');
+        })
+    );
     return;
   }
-  event.respondWith(fetch(event.request).then(response => { const copy=response.clone(); caches.open(CACHE).then(cache=>cache.put(event.request,copy)); return response; }).catch(() => caches.match(event.request)));
+
+  event.respondWith(
+    caches.match(request, {ignoreSearch: true}).then(cached => {
+      const refresh = fetch(request).then(response => {
+        if (response.ok) caches.open(CACHE).then(cache => cache.put(request, response.clone()));
+        return response;
+      }).catch(() => cached);
+      return cached || refresh;
+    })
+  );
 });
