@@ -1,6 +1,6 @@
-const CACHE = 'grassi-shell-v18';
+const CACHE = 'grassi-shell-v19';
 const CORE = [
-  './', './index.html', './pdv.html', './styles.css?v=18', './config.js?v=17',
+  './', './index.html', './pdv.html', './styles.css?v=19', './config.js?v=17',
   './backend.js?v=18', './app.js?v=18', './pwa.js?v=17', './import-wizard.js?v=18', './pdv-experience.js?v=18', './manifest.webmanifest',
   './assets/grassi-logo.png', './assets/grassi-symbol.png', './assets/icon-192.png',
   './assets/icon-512.png', './assets/icon-maskable-192.png', './assets/icon-maskable-512.png',
