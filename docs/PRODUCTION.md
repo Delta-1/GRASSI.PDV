@@ -39,6 +39,9 @@ A criação de usuários não deve acontecer com uma chave administrativa no fro
 - produtos e configurações graváveis somente por administrador;
 - métricas e relatórios filtrados pelo funcionário;
 - venda atômica: valida e baixa stock, grava itens, caixa, conta do cliente e métricas na mesma transação;
+- pedidos e orçamentos são registrados sem baixar estoque; somente a venda confirmada movimenta inventário e caixa;
+- no PDV, `F7` alterna entre venda e orçamento/simulação, com aviso visual durante todo o fluxo e no comprovante;
+- auditoria centralizada por empresa, com leitura exclusiva para administradores e gravação autenticada por RPC;
 - chave administrativa ausente do frontend.
 
 ## 5. Antes do uso real
