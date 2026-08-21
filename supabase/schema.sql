@@ -28,12 +28,15 @@ create table public.memberships (
   document text,
   avatar_url text,
   supervisor boolean not null default false,
+  permissions jsonb not null default '{"sales":true,"clients":true,"stock":false,"cash":false,"reports":false}'::jsonb,
+  must_change_password boolean not null default true,
   active boolean not null default true,
   sales_count integer not null default 0,
   sales_total numeric(14,2) not null default 0,
   average_ticket numeric(14,2) not null default 0,
   goal_progress numeric(5,2) not null default 0,
   created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
   primary key (business_id,user_id)
 );
 create index memberships_user_idx on public.memberships(user_id,business_id);
@@ -92,6 +95,7 @@ create table public.business_settings (
   business_id uuid primary key references public.businesses(id) on delete cascade,
   theme jsonb not null default '{"mode":"light","palette":"blue","accent":"#0098f9"}',
   pos_layout jsonb not null default '{"dock":"sidebar","density":"comfortable","theme":"touch","items":["client","wholesale","delivery","notes","payment"]}',
+  app_config jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now()
 );
 
@@ -110,6 +114,16 @@ $$;
 create or replace function public.is_admin(p_business_id uuid) returns boolean language sql stable security definer set search_path=public as $$
   select exists(select 1 from memberships where business_id=p_business_id and user_id=(select auth.uid()) and role='admin' and active);
 $$;
+
+create or replace function public.complete_password_change(p_business_id uuid)
+returns boolean language plpgsql security definer set search_path=public as $$
+begin
+  if not public.is_member(p_business_id) then raise exception 'access denied'; end if;
+  update memberships
+     set must_change_password=false,updated_at=now()
+   where business_id=p_business_id and user_id=auth.uid() and active;
+  return found;
+end $$;
 
 alter table public.businesses enable row level security; alter table public.memberships enable row level security;
 alter table public.products enable row level security; alter table public.clients enable row level security;
@@ -188,6 +202,8 @@ end $$;
 
 revoke all on function public.record_client_movement(uuid,uuid,public.ledger_kind,numeric,text) from public;
 grant execute on function public.record_client_movement(uuid,uuid,public.ledger_kind,numeric,text) to authenticated;
+revoke all on function public.complete_password_change(uuid) from public;
+grant execute on function public.complete_password_change(uuid) to authenticated;
 create or replace function public.record_audit_event(p_business_id uuid,p_module text,p_action text,p_details text default null,p_level text default 'info',p_terminal_id text default null,p_channel text default null,p_user_agent text default null)
 returns uuid language plpgsql security definer set search_path=public as $$
 declare log_id uuid; member memberships%rowtype;

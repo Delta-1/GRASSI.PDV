@@ -1,20 +1,41 @@
-# Ativação de produção
+# Ativação de produção com Supabase
 
-O repositório funciona agora em `mode: 'demo'`, sem serviço externo. Produtos, clientes, vendas, caixa, layouts e tema são mantidos no navegador. A integração Supabase já está separada em `backend.js` e pode ser ativada quando houver um projeto disponível.
+O frontend permanece em `mode: 'demo'` até existir um projeto Supabase real. A ativação não exige — e não permite — colocar a chave `service_role` ou uma senha administrativa no navegador.
 
 ## 1. Criar e preparar o projeto
 
-1. Crie um projeto Supabase.
-2. No SQL Editor, execute `supabase/schema.sql` uma única vez.
-3. Em Authentication > Users, crie o primeiro usuário administrador com e-mail e senha.
-4. Copie o UUID desse usuário, substitua `first_admin` em `supabase/bootstrap.sql.example` e execute o script.
-5. Em Project Settings > API, copie a URL do projeto e a chave **publishable/anon**.
+1. Crie um projeto Supabase novo para o GRASSI PDV & ERP.
+2. Execute `supabase/schema.sql` no SQL Editor. Para uma instalação já existente, aplique também `supabase/migrations/20260821_auth_management.sql`.
+3. Implante as Edge Functions `bootstrap-admin` e `manage-user`.
+4. Configure os secrets abaixo somente no ambiente das funções:
 
-Não coloque a chave `service_role` em `config.js`, no GitHub Pages ou no navegador.
+```text
+GRASSI_SETUP_KEY=<segredo aleatório com 32 ou mais caracteres>
+GRASSI_ADMIN_EMAIL=admin@grassi.local
+GRASSI_ADMIN_PASSWORD=<senha temporária forte com 12 ou mais caracteres>
+GRASSI_BUSINESS_NAME=GRASSI Repuestos
+GRASSI_LEGAL_NAME=GRASSI Repuestos
+ALLOWED_ORIGINS=https://delta-1.github.io
+```
 
-## 2. Ativar o frontend
+`SUPABASE_URL`, `SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` são fornecidos automaticamente pelo ambiente das Edge Functions. Nunca grave o valor de `GRASSI_ADMIN_PASSWORD` no Git ou em arquivos públicos.
 
-Edite somente estas propriedades em `config.js`:
+## 2. Criar o primeiro administrador
+
+Faça uma única chamada `POST` para `bootstrap-admin`, enviando o secret no cabeçalho `x-setup-key`. A função:
+
+- recusa uma segunda inicialização;
+- cria a empresa e suas configurações;
+- cria o usuário no Supabase Auth;
+- associa o usuário como administrador com todas as permissões;
+- exige que a senha temporária seja trocada no primeiro acesso;
+- desfaz a criação caso alguma etapa falhe.
+
+Depois do primeiro acesso, remova `GRASSI_ADMIN_PASSWORD` e `GRASSI_SETUP_KEY` dos secrets ou exclua a função `bootstrap-admin`. O administrador pode alterar o próprio e-mail e a senha em **Configurações > Meu acesso**.
+
+## 3. Ativar o frontend
+
+Copie somente a URL e a chave pública/publishable em `config.js`:
 
 ```js
 window.GRASSI_CONFIG = {
@@ -24,26 +45,20 @@ window.GRASSI_CONFIG = {
 }
 ```
 
-Depois publique novamente. O painel principal usa `index.html`; o terminal separado e responsivo usa `pdv.html`.
+O painel principal usa `index.html`; o terminal PDV separado usa `pdv.html`.
 
-## 3. Funcionários
+## 4. Funcionários e acessos
 
-A criação de usuários não deve acontecer com uma chave administrativa no frontend. O diretório `supabase/functions/invite-user` contém uma Edge Function preparada para convite seguro. Implante-a com a CLI do Supabase e mantenha `SUPABASE_SERVICE_ROLE_KEY` apenas nos secrets da função. Até essa função ser ligada à interface, crie usuários em Authentication e insira a associação correspondente em `memberships` pelo SQL Editor.
+O administrador cadastra funcionários dentro do ERP informando e-mail, senha temporária, função e permissões. A Edge Function `manage-user` valida o token de quem fez a solicitação e só permite a operação para administradores ativos da mesma empresa. Senhas são tratadas exclusivamente pelo Supabase Auth e nunca são gravadas nas tabelas do ERP.
 
-## 4. Segurança já preparada
+Ao criar um funcionário, o sistema exige a troca da senha temporária no primeiro login. Ao editar, deixar o campo de senha vazio conserva a senha atual. O último administrador ativo não pode ser rebaixado.
 
-- login por e-mail e senha;
-- sessão renovável;
-- isolamento por empresa (`business_id`);
-- Row Level Security em todas as tabelas;
-- produtos e configurações graváveis somente por administrador;
-- métricas e relatórios filtrados pelo funcionário;
-- venda atômica: valida e baixa stock, grava itens, caixa, conta do cliente e métricas na mesma transação;
-- pedidos e orçamentos são registrados sem baixar estoque; somente a venda confirmada movimenta inventário e caixa;
-- no PDV, `F7` alterna entre venda e orçamento/simulação, com aviso visual durante todo o fluxo e no comprovante;
-- auditoria centralizada por empresa, com leitura exclusiva para administradores e gravação autenticada por RPC;
-- chave administrativa ausente do frontend.
+## 5. Segurança e operação
 
-## 5. Antes do uso real
-
-Configure domínio, recuperação de senha, SMTP, backups e política de retenção no Supabase. Valide também regras fiscais, impressão e emissão documental aplicáveis à operação na Bolívia. O service worker mantém a interface disponível, mas vendas offline com sincronização posterior devem ser homologadas antes de permitir operação sem internet.
+- Row Level Security isola os dados por empresa (`business_id`).
+- Vendas são atômicas: validam e baixam estoque, registram itens, caixa, conta do cliente e métricas na mesma transação.
+- Pedidos e orçamentos não baixam estoque nem movimentam caixa.
+- Auditoria registra acessos e ações; a consulta completa é restrita a administradores.
+- A chave administrativa fica apenas nos secrets das Edge Functions.
+- Antes do uso real, configure domínio, recuperação de senha, SMTP, MFA para administradores, backups e retenção.
+- Homologue regras fiscais, impressão e emissão documental aplicáveis à operação na Bolívia.
