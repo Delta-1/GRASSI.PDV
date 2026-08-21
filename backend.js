@@ -40,10 +40,10 @@
       return session;
     }
     const auth = await request('/auth/v1/token?grant_type=password', { method: 'POST', body: { email, password } });
-    const memberships = await request(`/rest/v1/memberships?select=business_id,role,display_name,active&user_id=eq.${auth.user.id}&active=is.true&limit=1`, { headers: { Authorization: `Bearer ${auth.access_token}` } });
+    const memberships = await request(`/rest/v1/memberships?select=business_id,role,display_name,active,must_change_password&user_id=eq.${auth.user.id}&active=is.true&limit=1`, { headers: { Authorization: `Bearer ${auth.access_token}` } });
     if (!memberships?.length) throw new Error('El usuario no está vinculado a una empresa activa');
     const member = memberships[0];
-    session = { accessToken: auth.access_token, refreshToken: auth.refresh_token, expiresAt: Date.now() + auth.expires_in * 1000, userId: auth.user.id, email: auth.user.email, name: member.display_name || auth.user.email, role: member.role, businessId: member.business_id };
+    session = { accessToken: auth.access_token, refreshToken: auth.refresh_token, expiresAt: Date.now() + auth.expires_in * 1000, userId: auth.user.id, email: auth.user.email, name: member.display_name || auth.user.email, role: member.role, businessId: member.business_id, mustChangePassword: Boolean(member.must_change_password) };
     businessId = member.business_id;
     localStorage.setItem(sessionKey, JSON.stringify(session));
     return session;
@@ -90,10 +90,10 @@
     const ledgerByClient = Object.groupBy ? Object.groupBy(ledger, x => x.client_id) : ledger.reduce((a, x) => ((a[x.client_id] ||= []).push(x), a), {});
     const itemsBySale = items.reduce((a, x) => ((a[x.sale_id] ||= []).push(x), a), {});
     return {
-      settings: { businessName: business.name || 'GRASSI', legalName: business.legal_name || '', nit: business.tax_id || '', phone: business.phone || '', city: business.city || '', currency: business.currency || 'Bs', language: settings?.[0]?.theme?.language || 'es', accent: settings?.[0]?.theme?.accent || '#0098f9', appearance: settings?.[0]?.theme || {}, posLayout: settings?.[0]?.pos_layout || {} },
+      settings: { businessName: business.name || 'GRASSI', legalName: business.legal_name || '', nit: business.tax_id || '', phone: business.phone || '', city: business.city || '', currency: business.currency || 'Bs', language: settings?.[0]?.theme?.language || 'es', accent: settings?.[0]?.theme?.accent || '#0098f9', appearance: settings?.[0]?.theme || {}, posLayout: settings?.[0]?.pos_layout || {}, ...(settings?.[0]?.app_config || {}) },
       products: products.map(row => ({ ...fromSnake(row), id: row.id, image: row.image_url || '', minStock: Number(row.min_stock), wholesale: Number(row.wholesale_price), price: Number(row.price), cost: Number(row.cost), stock: Number(row.stock) })),
       clients: clients.map(row => ({ ...fromSnake(row), id: row.id, photo: row.avatar_url || '', balance: Number(row.balance), purchases: Number(row.purchases), total: Number(row.total_purchased), ledger: (ledgerByClient[row.id] || []).map(entry => ({ date: entry.created_at, type: entry.kind, description: entry.description, amount: Number(entry.amount) })) })),
-      employees: memberships.map(row => ({ id: row.user_id, name: row.display_name, role: row.job_title || (row.role === 'admin' ? 'Administrador' : 'Funcionario'), email: row.email || '', phone: row.phone || '', document: row.document || '', admin: row.role === 'admin', supervisor: row.supervisor, sales: Number(row.sales_count || 0), total: Number(row.sales_total || 0), ticket: Number(row.average_ticket || 0), goal: Number(row.goal_progress || 0), photo: row.avatar_url || '' })),
+      employees: memberships.map(row => ({ id: row.user_id, name: row.display_name, role: row.job_title || (row.role === 'admin' ? 'Administrador' : 'Funcionario'), email: row.email || '', phone: row.phone || '', document: row.document || '', admin: row.role === 'admin', supervisor: row.supervisor, permissions: row.permissions || {}, mustChangePassword: Boolean(row.must_change_password), active: row.active !== false, sales: Number(row.sales_count || 0), total: Number(row.sales_total || 0), ticket: Number(row.average_ticket || 0), goal: Number(row.goal_progress || 0), photo: row.avatar_url || '' })),
       sales: sales.map(row => ({ id: row.sale_number, uuid: row.id, clientSaleId: row.client_sale_id || row.id, date: row.created_at, client: row.client_name || 'Consumidor final', employee: row.seller_name || '', employeeId: row.seller_id, items: (itemsBySale[row.id] || []).reduce((n, x) => n + Number(x.quantity), 0), total: Number(row.total), payment: row.payment_method, type: row.kind || 'Venta', syncStatus: 'synced' })),
       cash: cash.map(row => ({ id: row.id, date: row.created_at, type: row.kind, description: row.description, amount: Number(row.amount), employee: row.employee_name || '' })), closings: [],
       auditLogs
@@ -113,12 +113,31 @@
     const rows = await request(`/rest/v1/businesses?id=eq.${businessId}`, { method: 'PATCH', body: { name: settings.businessName, legal_name: settings.legalName, tax_id: settings.nit, phone: settings.phone, city: settings.city, currency: 'Bs' } });
     return rows?.[0] || settings;
   }
-  async function saveSettings(settings) { return upsert('business_settings', { theme: { ...(settings.appearance || { accent: settings.accent }), language: settings.language || 'es' }, pos_layout: settings.posLayout || {} }, 'business_id'); }
+  async function saveSettings(settings) { const { appearance, posLayout, language, accent } = settings, appConfig = { options: settings.options || {}, wholesale: Boolean(settings.wholesale), cashClosing: settings.cashClosing || {}, documentTemplates: settings.documentTemplates || {}, watermarkOpacity: settings.watermarkOpacity, email: settings.email || '', address: settings.address || '', website: settings.website || '' }; return upsert('business_settings', { theme: { ...(appearance || { accent }), language: language || 'es' }, pos_layout: posLayout || {}, app_config: appConfig }, 'business_id'); }
+  async function updateCredentials({ email, password }) {
+    if (!isRemote()) throw new Error('La cuenta de demostración no tiene credenciales remotas');
+    const body = {};
+    if (email && email.toLowerCase() !== session?.email?.toLowerCase()) body.email = email.trim().toLowerCase();
+    if (password) body.password = password;
+    if (!Object.keys(body).length) throw new Error('No hay cambios para guardar');
+    const user = await request('/auth/v1/user', { method: 'PUT', body });
+    if (password) {
+      await request('/rest/v1/rpc/complete_password_change', { method: 'POST', body: { p_business_id: businessId } });
+      session.mustChangePassword = false;
+    }
+    if (user?.email) session.email = user.email;
+    localStorage.setItem(sessionKey, JSON.stringify(session));
+    return user;
+  }
+  async function manageEmployee(employee) {
+    if (!isRemote()) throw new Error('Gestión remota no configurada');
+    return request('/functions/v1/manage-user', { method: 'POST', body: { ...employee, businessId } });
+  }
   async function recordLedger(clientId, kind, amount, description) { if (!isRemote()) return null; return request('/rest/v1/rpc/record_client_movement', { method: 'POST', body: { p_business_id: businessId, p_client_id: clientId, p_kind: kind, p_amount: amount, p_description: description } }); }
   async function registerSale(payload) { if (!isRemote()) return null; return request('/rest/v1/rpc/register_sale', { method: 'POST', headers: { 'X-Idempotency-Key': payload.clientSaleId || '' }, body: { p_business_id: businessId, p_client_id: payload.clientId || null, p_payment_method: payload.payment, p_items: payload.items, p_notes: payload.notes || null, p_client_sale_id: payload.clientSaleId, p_kind: payload.kind || 'Venta' } }); }
   async function addCashMovement(movement) { return upsert('cash_movements', { kind: movement.type, description: movement.description, amount: movement.amount, employee_name: session?.name || '' }); }
   async function recordAudit(entry) { if (!isRemote()) return null; return request('/rest/v1/rpc/record_audit_event', { method: 'POST', body: { p_business_id: businessId, p_module: entry.module || 'Sistema', p_action: entry.action, p_details: entry.details || null, p_level: entry.level || 'info', p_terminal_id: entry.terminalId || null, p_channel: entry.channel || null, p_user_agent: entry.userAgent || null } }); }
   async function loadAuditLogs() { if (!isRemote() || session?.role !== 'admin') return []; const rows = await request(`${scoped('audit_logs')}&select=*&order=created_at.desc&limit=2000`); return (rows || []).map(row => ({ id: row.id, date: row.created_at, userId: row.user_id, user: row.user_name, email: row.user_email, role: row.user_role, module: row.module, action: row.action, details: row.details, level: row.level, terminalId: row.terminal_id, channel: row.channel, userAgent: row.user_agent })); }
 
-  window.GrassiBackend = { login, logout, restoreSession, loadWorkspace, saveProduct, saveClient, saveBusiness, saveSettings, recordLedger, registerSale, addCashMovement, recordAudit, loadAuditLogs, isRemote, getSession: () => session, getBusinessId: () => businessId };
+  window.GrassiBackend = { login, logout, restoreSession, loadWorkspace, saveProduct, saveClient, saveBusiness, saveSettings, updateCredentials, manageEmployee, recordLedger, registerSale, addCashMovement, recordAudit, loadAuditLogs, isRemote, getSession: () => session, getBusinessId: () => businessId };
 })();
