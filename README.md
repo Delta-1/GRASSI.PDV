@@ -17,7 +17,7 @@ O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`
 - venda em conta lançada automaticamente no banco e exibida no extrato do cliente selecionado;
 - cadastro de funcionários com foto e métricas individuais de vendas, faturamento, ticket médio e metas;
 - fluxo financeiro com entradas, saídas, saldo e fechamento de caixa;
-- relatórios imprimíveis;
+- relatórios imprimíveis com modelos operacionais de resumo de caixa, recibo A4 e factura comercial de Zona Franca;
 - personalização whitelabel de nome, razão social, NIT e cidade;
 - modo claro, escuro ou automático e cinco paletas de cor;
 - importação universal de produtos e clientes com prévia, mapeamento de colunas, modelos CSV e suporte a CSV, TSV, XLS e XLSX;
@@ -74,7 +74,9 @@ O sistema continua operacional sem um projeto Supabase. Quando houver um projeto
 - `supabase/bootstrap.sql.example`: criação segura da primeira empresa/administrador;
 - `supabase/functions/invite-user`: base para convite de funcionários sem expor `service_role`.
 
-Pendências antes de uma operação comercial real: homologar fiscal/documental para a Bolívia, impressão térmica, cancelamentos/devoluções, fila de vendas offline e backups monitorados.
+O resumo de caixa e o recibo usam os dados já registrados no ERP e podem ser impressos ou salvos em PDF. A factura de Zona Franca é um modelo comercial: código de autorização e QR fiscal só devem ser emitidos por uma integração homologada com o SIN.
+
+Pendências antes de uma operação comercial real: homologar a emissão fiscal com o SIN na Bolívia, cancelamentos/devoluções, fila de vendas offline e backups monitorados.
 
 ## Aviso
 
