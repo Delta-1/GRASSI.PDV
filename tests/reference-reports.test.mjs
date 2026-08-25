@@ -27,6 +27,7 @@ for (const field of ['zone', 'pointOfSale', 'authorizationCode']) {
 }
 
 assert.match(app, /name="saleReceiptTemplate"/, 'configurações devem permitir escolher o modelo do recibo');
+assert.match(app, /\['Unidad','Paquete','Caja','Balde','Bolsa','Botella','Lata','Kg'\]/, 'cadastro de produtos deve oferecer Balde como unidade de medida');
 assert.match(studio, /saleReceiptTemplate==='modern'/, 'renderização deve alternar entre modelo clássico e moderno');
 assert.match(backend, /saleReceiptTemplate: settings\.saleReceiptTemplate/, 'modelo escolhido deve persistir no Supabase');
 assert.match(studio, /const styles=\{official:'Oficial tabular'\}/, 'todos os documentos devem usar apenas o padrão oficial');
