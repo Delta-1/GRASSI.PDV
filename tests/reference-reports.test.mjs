@@ -29,6 +29,10 @@ for (const field of ['zone', 'pointOfSale', 'authorizationCode']) {
 assert.match(app, /name="saleReceiptTemplate"/, 'configurações devem permitir escolher o modelo do recibo');
 assert.match(studio, /saleReceiptTemplate==='modern'/, 'renderização deve alternar entre modelo clássico e moderno');
 assert.match(backend, /saleReceiptTemplate: settings\.saleReceiptTemplate/, 'modelo escolhido deve persistir no Supabase');
+assert.match(studio, /const styles=\{official:'Oficial tabular'\}/, 'todos os documentos devem usar apenas o padrão oficial');
+assert.match(studio, /style:'official',accent:'#111111'/, 'configuração salva não deve reativar estilos decorativos');
+assert.match(styles, /Padrão oficial tabular para todos os documentos gerados/, 'relatórios genéricos devem possuir grade oficial própria');
+assert.match(styles, /style-official:not\(\.reference-document\).*border:1px solid #222/, 'documentos oficiais devem usar bordas tabulares pretas');
 
 for (const cssClass of ['reference-cash', 'reference-receipt', 'reference-zona']) {
   assert.match(styles, new RegExp(`\\.${cssClass}`), `${cssClass} deve possuir estilo próprio`);
