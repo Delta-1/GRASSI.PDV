@@ -17,7 +17,7 @@ O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`
 - venda em conta lançada automaticamente no banco e exibida no extrato do cliente selecionado;
 - cadastro de funcionários com foto e métricas individuais de vendas, faturamento, ticket médio e metas;
 - fluxo financeiro com entradas, saídas, saldo e fechamento de caixa;
-- relatórios imprimíveis com modelos operacionais de resumo de caixa, recibo A4 e factura comercial de Zona Franca;
+- relatórios imprimíveis em padrão oficial tabular, com fundo branco, cabeçalhos cinza, bordas pretas e modelos de resumo de caixa, recibo A4 e factura comercial de Zona Franca;
 - personalização whitelabel de nome, razão social, NIT e cidade;
 - modo claro, escuro ou automático e cinco paletas de cor;
 - importação universal de produtos e clientes com prévia, mapeamento de colunas, modelos CSV e suporte a CSV, TSV, XLS e XLSX;
