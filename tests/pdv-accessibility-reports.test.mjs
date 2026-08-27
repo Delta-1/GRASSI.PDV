@@ -18,10 +18,27 @@ test('interface scale has three proportional choices and Supabase persistence', 
   assert.match(styles, /data-scale="small"/);
   assert.match(styles, /data-scale="large"/);
   assert.match(app, /name="scale"/);
-  assert.match(app, /state\.settings\.appearance=\{mode:d\.mode,palette,accent,shell,scale\}/);
+  assert.match(app, /state\.settings\.appearance=\{mode:d\.mode,palette,accent,shell,scale,font\}/);
   assert.match(backend, /theme:\s*\{\s*\.\.\.\(appearance\s*\|\|/);
   assert.match(experience, /html\[data-scale="large"\]\{font-size:18px\}/);
   assert.match(experience, /pos-touch-shortcuts button\{min-height:104px/);
+});
+
+test('system typography offers several fonts with preview and persistence', () => {
+  assert.match(app, /const fontThemes=\{/);
+  for (const id of ['inter', 'system', 'roboto', 'opensans', 'lato', 'poppins', 'nunito', 'ibmplex', 'hyperlegible']) {
+    assert.match(app, new RegExp(`\\b${id}:\\{label:`));
+  }
+  assert.match(app, /function applyFont\(id\)/);
+  assert.match(app, /function loadFontAssets\(id\)/);
+  assert.match(app, /fonts\.googleapis\.com\/css2\?family=/);
+  assert.match(app, /applyFont\(appearance\.font\)/);
+  assert.match(app, /name="font"/);
+  assert.match(app, /input\[name="font"\]/);
+  assert.match(app, /font:'inter'/);
+  assert.match(styles, /--app-font:Inter,Arial,sans-serif/);
+  assert.match(styles, /font-family:var\(--app-font\)/);
+  assert.match(styles, /\.font-choice-grid\{/);
 });
 
 test('Minimum is a distinct GRASSI shell and PDV theme', () => {
