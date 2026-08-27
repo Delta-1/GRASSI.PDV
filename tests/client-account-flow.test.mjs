@@ -4,6 +4,7 @@ import test from 'node:test';
 
 const app = readFileSync(new URL('../app.js', import.meta.url), 'utf8');
 const backend = readFileSync(new URL('../backend.js', import.meta.url), 'utf8');
+const pdvExperience = readFileSync(new URL('../pdv-experience.js', import.meta.url), 'utf8');
 const migration = readFileSync(
   new URL('../supabase/migrations/20260821_reports_documents_tutorials.sql', import.meta.url),
   'utf8',
@@ -19,6 +20,16 @@ test('customer picker returns to payment and supports search', () => {
   assert.match(app, /function posClientPicker\(returnTo=ui\.clientPickerReturn\|\|'pos'\)/);
   assert.match(app, /id="posClientSearch"/);
   assert.match(app, /function finishClientSelection\(clientId\).*ui\.posClient=clientId.*destination==='payment'.*paymentLayer\(\)/s);
+});
+
+test('PDV keeps customer search, creation and selection inside the sale', () => {
+  assert.match(pdvExperience, /function ensureClientStrip\(\)/);
+  assert.match(pdvExperience, /data-pdv-client-search/);
+  assert.match(pdvExperience, /data-pdv-client-new/);
+  assert.match(pdvExperience, /data-pdv-client-clear/);
+  assert.match(pdvExperience, /function enhanceClientPicker\(\)/);
+  assert.match(pdvExperience, /window\.finishClientSelection\?\.\(''\)/);
+  assert.match(app, /Al guardar, el cliente quedará seleccionado en esta venta/);
 });
 
 test('checkout refuses a customer-account sale without a customer', () => {
