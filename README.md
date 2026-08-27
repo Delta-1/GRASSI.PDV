@@ -8,7 +8,8 @@ O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`
 
 - histórico de vendas como tela inicial, com pedidos e orçamentos;
 - login separado para administrador e funcionário, permissões e sessão persistente;
-- PDV em tela cheia com pesquisa, leitura por código, carrinho, preço varejista/atacadista, abertura dedicada por `F3` e orçamento de compra teste por `F7`;
+- PDV em tela cheia com pesquisa, leitura por código, carrinho, preço varejista/atacadista, abertura dedicada por `F3` e orçamento por `F7`;
+- atalhos grandes e clicáveis, com alternativas próprias para notebook (`Alt+B` para buscar, `Alt+C` para cliente e `Ctrl+Enter` para finalizar), sem depender da tecla `Fn`;
 - terminal independente em `pdv.html`, responsivo para celular, tablet e computador;
 - editor visual do PDV com controles arrastáveis, posição lateral/inferior e densidade configurável;
 - pagamentos por dinheiro, PIX, QR, transferência e conta do cliente, com escolha do cliente dentro do próprio pagamento;
@@ -17,9 +18,10 @@ O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`
 - venda em conta lançada automaticamente no banco e exibida no extrato do cliente selecionado;
 - cadastro de funcionários com foto e métricas individuais de vendas, faturamento, ticket médio e metas;
 - fluxo financeiro com entradas, saídas, saldo e fechamento de caixa;
+- central de relatórios com análises distintas de resumo, rentabilidade, caixa, meios de pagamento, vendedor, produto, horário pico, ticket, clientes, estoque, inventário e fechamentos;
 - relatórios imprimíveis em padrão oficial tabular, com fundo branco, cabeçalhos cinza, bordas pretas e modelos de resumo de caixa, recibo A4 e factura comercial de Zona Franca;
 - personalização whitelabel de nome, razão social, NIT e cidade;
-- modo claro, escuro ou automático e cinco paletas de cor;
+- modo claro, escuro ou automático, cinco paletas e escala proporcional Pequena/Média/Grande (Média preserva o visual original);
 - importação universal de produtos e clientes com prévia, mapeamento de colunas, modelos CSV e suporte a CSV, TSV, XLS e XLSX;
 - logs de auditoria com usuário, horário, módulo, terminal/dispositivo e console de eventos somente leitura;
 - exportação CSV de produtos, clientes e funcionários;
