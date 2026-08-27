@@ -159,6 +159,7 @@
 
     /* Venda rápida volta a recolher completamente e reabre pela aba lateral. */
     @media(min-width:981px){.pdv:not(.sidebar-collapsed){grid-template-columns:minmax(0,69.2%) minmax(300px,30.8%)!important}.pdv:not(.sidebar-collapsed) .pdv-sidebar{display:flex!important;padding:32px 24px 32px 32px!important;overflow:hidden!important}.pdv:not(.sidebar-collapsed) .pdv-side-head,.pdv:not(.sidebar-collapsed) .pdv-seller{display:block!important}.pdv:not(.sidebar-collapsed) .pdv-links{padding:20px 0 0!important;display:block!important}.pdv:not(.sidebar-collapsed) .pdv-links li{min-height:56px!important}.pdv:not(.sidebar-collapsed) .pos-widget{width:100%!important;height:auto!important;min-height:48px;padding:0 12px!important;display:flex!important;justify-content:flex-start!important}.pdv:not(.sidebar-collapsed) .pos-widget>span{display:inline!important}.pdv:not(.sidebar-collapsed) .pos-widget>span:last-child{margin-left:auto!important}.pdv:not(.sidebar-collapsed) .pos-panel-toggle{top:17px!important;right:14px!important;width:auto!important;height:32px!important;padding:0 10px!important;transform:none!important}.pdv:not(.sidebar-collapsed) .pos-panel-toggle span{display:inline!important}.pdv:not(.sidebar-collapsed) .pos-panel-toggle:before{transform:rotate(180deg)!important}.pdv.sidebar-collapsed{grid-template-columns:minmax(0,1fr)!important}.pdv.sidebar-collapsed .pdv-main{border-right:0!important}.pdv.sidebar-collapsed .pdv-sidebar{display:none!important}.pdv.sidebar-collapsed .pos-panel-reopen{display:flex!important}}
+    .pdv.dock-footer,.pdv.dock-footer.sidebar-collapsed{grid-template-columns:minmax(0,1fr)!important}.pdv.dock-footer .pdv-main{border-right:0!important}.pdv.dock-footer .pdv-sidebar,.pdv.dock-footer .pos-panel-toggle,.pdv.dock-footer .pos-panel-reopen{display:none!important}
 
     @media(max-width:1100px){.pdv.pos-theme-minimum .pdv-title::after{display:none}.pdv.pos-theme-minimum .pos-sale-workspace{grid-template-columns:1fr}}
     @media(max-width:720px){html[data-scale="large"]{font-size:16px}html[data-scale="large"] .page-title,html[data-scale="large"] .page-title h1{font-size:30px!important}html[data-scale="large"] .btn,html[data-scale="large"] input:not([type="radio"]):not([type="checkbox"]),html[data-scale="large"] select{min-height:50px;font-size:15px!important}html[data-scale="large"] .data-table td{height:58px;font-size:14px!important}html[data-scale="large"] .pos-touch-shortcuts button{min-height:76px}.pdv.pos-theme-minimum .pdv-search{padding-block:10px}.pdv.pos-theme-minimum .pdv-search .search-field input{height:56px}.pdv.pos-theme-minimum .pos-touch-shortcuts{gap:6px;padding:7px}.pdv.pos-theme-minimum .pos-touch-shortcuts button{min-height:72px}}
@@ -203,6 +204,16 @@
     document.querySelectorAll('.pdv-sidebar [data-pos-widget]').forEach(button => {
       const label = button.querySelector('[data-pos-widget-label]')?.textContent?.trim();
       if (label) button.title = label;
+    });
+  }
+
+  function syncFooterDockState() {
+    const pdv = document.querySelector('.pdv.dock-footer.sidebar-collapsed');
+    const toggle = pdv?.querySelector('[data-action="toggle-pos-panel"]');
+    if (!pdv || !toggle || pdv.dataset.footerDockReset === 'pending') return;
+    pdv.dataset.footerDockReset = 'pending';
+    queueMicrotask(() => {
+      if (pdv.isConnected && pdv.matches('.dock-footer.sidebar-collapsed')) toggle.click();
     });
   }
 
@@ -385,6 +396,7 @@
     syncClientFlow();
     enhanceLogin();
     ensureMinimumOptions();
+    syncFooterDockState();
   }
 
   function syncClientFlow() {
