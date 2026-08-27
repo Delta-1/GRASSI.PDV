@@ -249,9 +249,9 @@
     input.dataset.usernameEnabled = 'true';
     input.type = 'text';
     input.autocomplete = 'username';
-    input.placeholder = document.documentElement.lang.startsWith('pt') ? 'MARCOS ou nome@empresa.com' : 'MARCOS o nombre@empresa.com';
+    input.placeholder = document.documentElement.lang.startsWith('pt') ? 'Digite seu usuário' : 'Ingrese su usuario';
     const label = input.closest('.field')?.querySelector('label');
-    if (label) label.textContent = document.documentElement.lang.startsWith('pt') ? 'Usuário ou e-mail' : 'Usuario o correo';
+    if (label) label.textContent = document.documentElement.lang.startsWith('pt') ? 'Usuário' : 'Usuario';
   }
 
   function ensureMinimumOptions() {

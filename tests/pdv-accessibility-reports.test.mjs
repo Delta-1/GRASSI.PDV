@@ -36,7 +36,9 @@ test('remote login accepts the MARCOS username without storing a password in sou
   assert.match(experience, /usernameDomain = '@grassi\.local'/);
   assert.match(experience, /principalLoginEmail = 'admin@grassi\.local'/);
   assert.match(experience, /normalized === 'marcos'/);
-  assert.match(experience, /Usuario o correo/);
+  assert.match(experience, /Ingrese su usuario/);
+  assert.match(experience, /Digite seu usuário/);
+  assert.doesNotMatch(experience, /MARCOS ou nome@empresa\.com|MARCOS o nombre@empresa\.com|Usuario o correo|Usuário ou e-mail/);
   assert.match(experience, /normalized\.includes\('@'\)/);
   assert.doesNotMatch(experience, /12345678/);
 });
