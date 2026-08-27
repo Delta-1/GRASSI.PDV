@@ -256,7 +256,10 @@
     const appearanceForm = document.getElementById('appearanceForm');
     const shellGrid = appearanceForm?.querySelector('.shell-choice-grid');
     const largeScaleDescription = appearanceForm?.querySelector('input[name="scale"][value="large"]')?.closest('.interface-scale-option')?.querySelector('small');
-    if (largeScaleDescription) largeScaleDescription.textContent = 'Leitura realmente grande e proporcional';
+    if (largeScaleDescription && !largeScaleDescription.dataset.largeCopy) {
+      largeScaleDescription.dataset.largeCopy = 'true';
+      largeScaleDescription.textContent = 'Leitura realmente grande e proporcional';
+    }
     if (shellGrid && !shellGrid.querySelector('input[value="minimum"]')) {
       const selected = document.documentElement.dataset.shell === 'minimum';
       if (selected) shellGrid.querySelectorAll('input[name="shell"]').forEach(input => { input.checked = false; });
