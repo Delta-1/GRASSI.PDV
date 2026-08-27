@@ -7,6 +7,7 @@ const app = read('app.js');
 const backend = read('backend.js');
 const styles = read('styles.css');
 const experience = read('pdv-experience.js');
+const pdvHtml = read('pdv.html');
 
 test('interface scale has three proportional choices and Supabase persistence', () => {
   assert.match(app, /scale:'medium'/);
@@ -41,6 +42,21 @@ test('remote login accepts the MARCOS username without storing a password in sou
   assert.doesNotMatch(experience, /MARCOS ou nome@empresa\.com|MARCOS o nombre@empresa\.com|Usuario o correo|Usuário ou e-mail/);
   assert.match(experience, /normalized\.includes\('@'\)/);
   assert.doesNotMatch(experience, /12345678/);
+});
+
+test('standalone PDV remembers user profiles but always asks for a password', () => {
+  assert.match(experience, /grassi\.pdv\.profiles\.v1/);
+  assert.match(experience, /Quem vai usar o PDV\?/);
+  assert.match(experience, /Escolha seu perfil e digite apenas a senha\./);
+  assert.match(experience, /profiles\.unshift\(\{userId: session\.userId \|\| session\.email, name: session\.name, email: session\.email, role: session\.role \|\| 'employee'\}\)/);
+  assert.match(pdvHtml, /sessionStorage\.removeItem\('grassi\.pos\.unlocked'\)/);
+});
+
+test('Minimum stays dark and Venta rápida can collapse completely', () => {
+  assert.match(experience, /pos-theme-minimum \.suggestions/);
+  assert.match(experience, /pos-theme-minimum \.qty-stepper/);
+  assert.match(experience, /pdv\.sidebar-collapsed \.pdv-sidebar\{display:none!important\}/);
+  assert.match(experience, /pdv\.sidebar-collapsed \.pos-panel-reopen\{display:flex!important\}/);
 });
 
 test('PDV shortcuts provide notebook alternatives and stay readable', () => {

@@ -7,6 +7,27 @@
   const searchIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.4-4.4"/></svg>';
   const usernameDomain = '@grassi.local';
   const principalLoginEmail = 'admin@grassi.local';
+  const pdvProfilesKey = 'grassi.pdv.profiles.v1';
+
+  function readPdvProfiles() {
+    try {
+      const profiles = JSON.parse(localStorage.getItem(pdvProfilesKey) || '[]');
+      return Array.isArray(profiles) ? profiles.filter(profile => profile?.email && profile?.name).slice(0, 6) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function rememberPdvProfile(session) {
+    if (document.body.dataset.mode !== 'standalone-pos' || !session?.email || !session?.name) return;
+    const profiles = readPdvProfiles().filter(profile => profile.userId !== session.userId && profile.email !== session.email);
+    profiles.unshift({userId: session.userId || session.email, name: session.name, email: session.email, role: session.role || 'employee'});
+    localStorage.setItem(pdvProfilesKey, JSON.stringify(profiles.slice(0, 6)));
+  }
+
+  if (document.body.dataset.mode === 'standalone-pos') {
+    try { rememberPdvProfile(JSON.parse(localStorage.getItem('grassi.session.v1') || 'null')); } catch {}
+  }
 
   if (window.GRASSI_CONFIG?.mode === 'supabase' && window.GrassiBackend?.login && !window.GrassiBackend.login.__acceptsUsername) {
     const remoteLogin = window.GrassiBackend.login.bind(window.GrassiBackend);
@@ -14,7 +35,10 @@
       const normalized = String(identifier || '').trim().toLowerCase();
       const isPrincipal = normalized === 'marcos' || normalized === `marcos${usernameDomain}`;
       const email = isPrincipal ? principalLoginEmail : normalized.includes('@') ? normalized : `${normalized}${usernameDomain}`;
-      return remoteLogin(email, password);
+      return remoteLogin(email, password).then(session => {
+        rememberPdvProfile(session);
+        return session;
+      });
     };
     loginWithUsername.__acceptsUsername = true;
     window.GrassiBackend.login = loginWithUsername;
@@ -27,6 +51,10 @@
     @media(max-width:900px){.pos-client-strip{margin-inline:16px}.pos-client-strip button[data-pdv-client-clear]{display:none}}
     @media(max-width:720px){.pos-client-strip{min-height:62px;margin:7px 9px;padding:7px 8px;border-radius:14px;gap:7px}.pos-client-strip-icon{width:36px;height:36px}.pos-client-strip-copy{min-width:0}.pos-client-strip-copy span{display:none}.pos-client-strip button{height:36px;padding:0 9px;font-size:8px}.pos-client-strip button[data-pdv-client-new]{width:36px;padding:0;font-size:0}.pos-client-strip button[data-pdv-client-new]::after{content:'+';font-size:18px}.pos-catalog,.pos-cart-panel{height:calc(100dvh - 408px)}.pos-client-results{max-height:43vh}}
     @media(max-width:420px){.pos-client-strip-copy small{font-size:6px}.pos-client-strip-copy strong{font-size:10px}.pos-consumer-final small{display:none}}
+
+    /* Entrada do PDV por perfis locais. Guarda somente o identificador, nunca a senha. */
+    .pdv-profile-login{margin:2px 0 18px;display:grid;gap:13px}.pdv-profile-heading strong,.pdv-profile-heading small{display:block}.pdv-profile-heading strong{font-size:17px;line-height:1.2}.pdv-profile-heading small{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.45}.pdv-profile-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.pdv-profile-card{min-width:0;min-height:116px;padding:10px 7px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;box-shadow:none}.pdv-profile-card>span{width:49px;height:49px;border-radius:15px;background:linear-gradient(145deg,var(--accent),#94040a);color:#fff;display:grid;place-items:center;font-size:21px;font-weight:900}.pdv-profile-card>strong{max-width:100%;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pdv-profile-card>small{color:var(--muted);font-size:8px}.pdv-profile-card:hover,.pdv-profile-card.active{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.12)}.pdv-profile-other>span{background:var(--surface-2);border:1px dashed var(--line);color:var(--muted);font-size:27px;font-weight:450}.pdv-profile-other.active>span{border-color:var(--accent);color:var(--accent)}
+    @media(max-width:520px){.pdv-profile-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pdv-profile-card{min-height:105px}.pdv-profile-card>span{width:44px;height:44px}}
 
     /* Escala Grande: tipografia, campos, tabelas e alvos de toque crescem juntos. */
     html[data-scale="large"]{font-size:18px}
@@ -79,6 +107,8 @@
     html[data-shell="minimum"] .page-header,html[data-shell="minimum"] .topbar,html[data-shell="minimum"] .page-head{background:#202124;border-color:var(--line);box-shadow:none}
     html[data-shell="minimum"] .panel,html[data-shell="minimum"] .metric,html[data-shell="minimum"] .card,html[data-shell="minimum"] .data-region,html[data-shell="minimum"] .settings-nav,html[data-shell="minimum"] .settings-content{background:var(--surface);border-color:var(--line);border-radius:12px;box-shadow:none}
     html[data-shell="minimum"] .btn,html[data-shell="minimum"] input,html[data-shell="minimum"] select,html[data-shell="minimum"] textarea,html[data-shell="minimum"] .filter{border-radius:8px;box-shadow:none}
+    html[data-shell="minimum"] input,html[data-shell="minimum"] select,html[data-shell="minimum"] textarea,html[data-shell="minimum"] .field input,html[data-shell="minimum"] .field select,html[data-shell="minimum"] .field textarea{background:#202124;border-color:#55565b;color:#f7f7f8}
+    html[data-shell="minimum"] .layer-card,html[data-shell="minimum"] .layer-head,html[data-shell="minimum"] .layer-body,html[data-shell="minimum"] .layer-foot,html[data-shell="minimum"] .suggestions,html[data-shell="minimum"] .suggestion,html[data-shell="minimum"] .payment-option{background:#292a2d;border-color:#4a4b50;color:#f7f7f8}
     html[data-shell="minimum"] .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
     html[data-shell="minimum"] .btn.secondary,html[data-shell="minimum"] .btn:not(.primary){background:#303135;border-color:#55565b;color:var(--text)}
     html[data-shell="minimum"] .data-table thead,html[data-shell="minimum"] .data-table th{background:#242528;color:#d7d7da}
@@ -98,8 +128,11 @@
     .pos-theme-preview.theme-minimum i{outline:2px solid #e20b13;outline-offset:-2px}
     .pos-theme-preview.theme-minimum small{color:#f5f5f6}
     .pdv.pos-theme-minimum{--surface:#292a2d;--surface-2:#202124;--line:#4a4b50;--text:#f7f7f8;--muted:#b7b8bd;--accent:#e20b13;--accent-rgb:226,11,19;color:var(--text);background:#202124}
-    .pdv.pos-theme-minimum .pdv-main,.pdv.pos-theme-minimum .pdv-sidebar,.pdv.pos-theme-minimum .pdv-footer,.pdv.pos-theme-minimum .pos-touch-shortcuts,.pdv.pos-theme-minimum .pos-touch-shortcuts button,.pdv.pos-theme-minimum .data-region,.pdv.pos-theme-minimum .data-table thead,.pdv.pos-theme-minimum .search-field input,.pdv.pos-theme-minimum .quantity-field input,.pdv.pos-theme-minimum .pos-widget{background:var(--surface);color:var(--text);box-shadow:none}
+    .pdv.pos-theme-minimum .pdv-main,.pdv.pos-theme-minimum .pdv-sidebar,.pdv.pos-theme-minimum .pdv-title,.pdv.pos-theme-minimum .pdv-footer,.pdv.pos-theme-minimum .pos-touch-shortcuts,.pdv.pos-theme-minimum .pos-touch-shortcuts button,.pdv.pos-theme-minimum .data-region,.pdv.pos-theme-minimum .data-table thead,.pdv.pos-theme-minimum .search-field input,.pdv.pos-theme-minimum .quantity-field input,.pdv.pos-theme-minimum .pos-widget,.pdv.pos-theme-minimum .suggestions,.pdv.pos-theme-minimum .suggestion,.pdv.pos-theme-minimum .pos-catalog-head,.pdv.pos-theme-minimum .pos-cart-panel>header,.pdv.pos-theme-minimum .pos-category-strip,.pdv.pos-theme-minimum .pos-category-strip button,.pdv.pos-theme-minimum .qty-stepper,.pdv.pos-theme-minimum .qty-stepper button,.pdv.pos-theme-minimum .qty-stepper input,.pdv.pos-theme-minimum .pos-cart-card,.pdv.pos-theme-minimum .pos-cart-mobile-edit,.pdv.pos-theme-minimum .company-badge,.pdv.pos-theme-minimum .language-switch,.pdv.pos-theme-minimum .shortcut-trigger{background:var(--surface);border-color:var(--line);color:var(--text);box-shadow:none}
     .pdv.pos-theme-minimum .pdv-main{background:#202124}
+    .pdv.pos-theme-minimum .pos-product-grid,.pdv.pos-theme-minimum .pos-product-visual{background:#202124}
+    .pdv.pos-theme-minimum .suggestion:hover,.pdv.pos-theme-minimum .pos-category-strip button.active{background:rgba(226,11,19,.14);color:#fff}
+    .pdv.pos-theme-minimum .sync-pill.online{background:#173a2a;color:#7ce1ab}.pdv.pos-theme-minimum .sync-pill.pending{background:#493819;color:#f4cf72}.pdv.pos-theme-minimum .sync-pill.offline{background:#4b2026;color:#ff9ca8}
     .pdv.pos-theme-minimum .pdv-title{min-height:86px;position:relative;border-bottom:1px solid var(--line)}
     .pdv.pos-theme-minimum .pdv-title::after{content:'BUSQUE O ESCANEE EL PRODUCTO';position:absolute;left:50%;top:50%;max-width:44%;transform:translate(-50%,-50%);font-size:clamp(19px,2vw,32px);font-weight:900;letter-spacing:.06em;text-align:center;color:#fff;pointer-events:none}
     html[lang^="pt"] .pdv.pos-theme-minimum .pdv-title::after{content:'PASSE OU BUSQUE O PRODUTO'}
@@ -123,6 +156,9 @@
     .pdv.pos-theme-minimum .pos-touch-shortcuts button{min-height:88px;border:1px solid #595a60;border-radius:8px}
     .pdv.pos-theme-minimum .pos-touch-shortcuts button.finish{background:var(--accent);border-color:var(--accent);color:#fff}
     .pdv.pos-theme-minimum .pos-touch-shortcuts button:hover{border-color:#fff;transform:none}
+
+    /* Venda rápida volta a recolher completamente e reabre pela aba lateral. */
+    @media(min-width:981px){.pdv:not(.sidebar-collapsed){grid-template-columns:minmax(0,69.2%) minmax(300px,30.8%)!important}.pdv:not(.sidebar-collapsed) .pdv-sidebar{display:flex!important;padding:32px 24px 32px 32px!important;overflow:hidden!important}.pdv:not(.sidebar-collapsed) .pdv-side-head,.pdv:not(.sidebar-collapsed) .pdv-seller{display:block!important}.pdv:not(.sidebar-collapsed) .pdv-links{padding:20px 0 0!important;display:block!important}.pdv:not(.sidebar-collapsed) .pdv-links li{min-height:56px!important}.pdv:not(.sidebar-collapsed) .pos-widget{width:100%!important;height:auto!important;min-height:48px;padding:0 12px!important;display:flex!important;justify-content:flex-start!important}.pdv:not(.sidebar-collapsed) .pos-widget>span{display:inline!important}.pdv:not(.sidebar-collapsed) .pos-widget>span:last-child{margin-left:auto!important}.pdv:not(.sidebar-collapsed) .pos-panel-toggle{top:17px!important;right:14px!important;width:auto!important;height:32px!important;padding:0 10px!important;transform:none!important}.pdv:not(.sidebar-collapsed) .pos-panel-toggle span{display:inline!important}.pdv:not(.sidebar-collapsed) .pos-panel-toggle:before{transform:rotate(180deg)!important}.pdv.sidebar-collapsed{grid-template-columns:minmax(0,1fr)!important}.pdv.sidebar-collapsed .pdv-main{border-right:0!important}.pdv.sidebar-collapsed .pdv-sidebar{display:none!important}.pdv.sidebar-collapsed .pos-panel-reopen{display:flex!important}}
 
     @media(max-width:1100px){.pdv.pos-theme-minimum .pdv-title::after{display:none}.pdv.pos-theme-minimum .pos-sale-workspace{grid-template-columns:1fr}}
     @media(max-width:720px){html[data-scale="large"]{font-size:16px}html[data-scale="large"] .page-title,html[data-scale="large"] .page-title h1{font-size:30px!important}html[data-scale="large"] .btn,html[data-scale="large"] input:not([type="radio"]):not([type="checkbox"]),html[data-scale="large"] select{min-height:50px;font-size:15px!important}html[data-scale="large"] .data-table td{height:58px;font-size:14px!important}html[data-scale="large"] .pos-touch-shortcuts button{min-height:76px}.pdv.pos-theme-minimum .pdv-search{padding-block:10px}.pdv.pos-theme-minimum .pdv-search .search-field input{height:56px}.pdv.pos-theme-minimum .pos-touch-shortcuts{gap:6px;padding:7px}.pdv.pos-theme-minimum .pos-touch-shortcuts button{min-height:72px}}
@@ -242,6 +278,68 @@
     input?.focus();
   }
 
+  function renderPdvProfileChooser(form, input) {
+    if (document.body.dataset.mode !== 'standalone-pos' || form.querySelector('.pdv-profile-login')) return;
+    const profiles = readPdvProfiles();
+    if (!profiles.length) return;
+    const usernameField = input.closest('.field');
+    const passwordField = form.elements.password?.closest('.field');
+    const chooser = document.createElement('section');
+    chooser.className = 'pdv-profile-login';
+    const heading = document.createElement('div');
+    heading.className = 'pdv-profile-heading';
+    const title = document.createElement('strong');
+    title.textContent = document.documentElement.lang.startsWith('pt') ? 'Quem vai usar o PDV?' : '¿Quién va a usar el PDV?';
+    const helper = document.createElement('small');
+    helper.textContent = document.documentElement.lang.startsWith('pt') ? 'Escolha seu perfil e digite apenas a senha.' : 'Elija su perfil e ingrese solamente la contraseña.';
+    heading.append(title, helper);
+    const grid = document.createElement('div');
+    grid.className = 'pdv-profile-grid';
+
+    function selectProfile(profile, button) {
+      grid.querySelectorAll('.pdv-profile-card').forEach(card => card.classList.toggle('active', card === button));
+      input.value = profile?.email || '';
+      usernameField.hidden = Boolean(profile);
+      passwordField?.querySelector('input')?.focus();
+    }
+
+    profiles.forEach((profile, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `pdv-profile-card${index === 0 ? ' active' : ''}`;
+      const avatar = document.createElement('span');
+      avatar.textContent = String(profile.name).trim().charAt(0).toUpperCase() || '?';
+      const name = document.createElement('strong');
+      name.textContent = profile.name;
+      const role = document.createElement('small');
+      role.textContent = profile.role === 'admin' ? 'Administrador' : document.documentElement.lang.startsWith('pt') ? 'Funcionário' : 'Funcionario';
+      button.append(avatar, name, role);
+      button.addEventListener('click', () => selectProfile(profile, button));
+      grid.append(button);
+    });
+
+    const other = document.createElement('button');
+    other.type = 'button';
+    other.className = 'pdv-profile-card pdv-profile-other';
+    const plus = document.createElement('span');
+    plus.textContent = '+';
+    const otherName = document.createElement('strong');
+    otherName.textContent = document.documentElement.lang.startsWith('pt') ? 'Outro usuário' : 'Otro usuario';
+    const otherHelp = document.createElement('small');
+    otherHelp.textContent = document.documentElement.lang.startsWith('pt') ? 'Usar novo acesso' : 'Usar nuevo acceso';
+    other.append(plus, otherName, otherHelp);
+    other.addEventListener('click', () => {
+      grid.querySelectorAll('.pdv-profile-card').forEach(card => card.classList.toggle('active', card === other));
+      input.value = '';
+      usernameField.hidden = false;
+      input.focus();
+    });
+    grid.append(other);
+    chooser.append(heading, grid);
+    usernameField.before(chooser);
+    selectProfile(profiles[0], grid.firstElementChild);
+  }
+
   function enhanceLogin() {
     const form = document.getElementById('loginForm');
     const input = form?.elements?.email;
@@ -252,6 +350,7 @@
     input.placeholder = document.documentElement.lang.startsWith('pt') ? 'Digite seu usuário' : 'Ingrese su usuario';
     const label = input.closest('.field')?.querySelector('label');
     if (label) label.textContent = document.documentElement.lang.startsWith('pt') ? 'Usuário' : 'Usuario';
+    renderPdvProfileChooser(form, input);
   }
 
   function ensureMinimumOptions() {
