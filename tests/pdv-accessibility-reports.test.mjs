@@ -34,6 +34,8 @@ test('Minimum is a distinct GRASSI shell and PDV theme', () => {
 
 test('remote login accepts the MARCOS username without storing a password in source', () => {
   assert.match(experience, /usernameDomain = '@grassi\.local'/);
+  assert.match(experience, /principalLoginEmail = 'admin@grassi\.local'/);
+  assert.match(experience, /normalized === 'marcos'/);
   assert.match(experience, /Usuario o correo/);
   assert.match(experience, /normalized\.includes\('@'\)/);
   assert.doesNotMatch(experience, /12345678/);

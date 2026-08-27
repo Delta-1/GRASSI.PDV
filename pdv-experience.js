@@ -6,12 +6,14 @@
   const clientIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>';
   const searchIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.4-4.4"/></svg>';
   const usernameDomain = '@grassi.local';
+  const principalLoginEmail = 'admin@grassi.local';
 
   if (window.GRASSI_CONFIG?.mode === 'supabase' && window.GrassiBackend?.login && !window.GrassiBackend.login.__acceptsUsername) {
     const remoteLogin = window.GrassiBackend.login.bind(window.GrassiBackend);
     const loginWithUsername = (identifier, password) => {
       const normalized = String(identifier || '').trim().toLowerCase();
-      const email = normalized.includes('@') ? normalized : `${normalized}${usernameDomain}`;
+      const isPrincipal = normalized === 'marcos' || normalized === `marcos${usernameDomain}`;
+      const email = isPrincipal ? principalLoginEmail : normalized.includes('@') ? normalized : `${normalized}${usernameDomain}`;
       return remoteLogin(email, password);
     };
     loginWithUsername.__acceptsUsername = true;
