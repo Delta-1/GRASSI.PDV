@@ -70,8 +70,8 @@
     html[data-scale="large"] .data-table th{height:54px;font-size:13px!important}
     html[data-scale="large"] .data-table td{height:62px;font-size:15px!important}
     html[data-scale="large"] .data-table td strong{font-size:16px!important}
-    html[data-scale="large"] .shell-choice strong,html[data-scale="large"] .interface-scale-option strong,html[data-scale="large"] .choice-card strong{font-size:16px!important}
-    html[data-scale="large"] .shell-choice small,html[data-scale="large"] .interface-scale-option small,html[data-scale="large"] .choice-label,html[data-scale="large"] .scale-hint{font-size:13px!important}
+    html[data-scale="large"] .shell-choice strong,html[data-scale="large"] .interface-scale-option strong,html[data-scale="large"] .choice-card strong,html[data-scale="large"] .font-choice-option strong{font-size:16px!important}
+    html[data-scale="large"] .shell-choice small,html[data-scale="large"] .interface-scale-option small,html[data-scale="large"] .choice-label,html[data-scale="large"] .scale-hint,html[data-scale="large"] .font-choice-option small{font-size:13px!important}
     html[data-scale="large"] .pdv-title h1{font-size:34px!important}
     html[data-scale="large"] .pdv-title .terminal-label,html[data-scale="large"] .shortcut-trigger,html[data-scale="large"] .sync-pill{font-size:13px!important}
     html[data-scale="large"] .pdv-search .search-field input{height:60px!important;font-size:18px!important}

@@ -22,6 +22,7 @@ O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`
 - relatórios imprimíveis em padrão oficial tabular, com fundo branco, cabeçalhos cinza, bordas pretas e modelos de resumo de caixa, recibo A4 e factura comercial de Zona Franca;
 - personalização whitelabel de nome, razão social, NIT e cidade;
 - modo claro, escuro ou automático, cinco paletas e escala proporcional Pequena/Média/Grande (Média preserva o visual original);
+- nove opções de tipografia para todo o sistema (Inter, Sistema, Roboto, Open Sans, Lato, Poppins, Nunito Sans, IBM Plex Sans e Atkinson Hyperlegible), com prévia imediata na tela de Apariencia e retorno automático para Arial quando não houver internet;
 - importação universal de produtos e clientes com prévia, mapeamento de colunas, modelos CSV e suporte a CSV, TSV, XLS e XLSX;
 - logs de auditoria com usuário, horário, módulo, terminal/dispositivo e console de eventos somente leitura;
 - exportação CSV de produtos, clientes e funcionários;
