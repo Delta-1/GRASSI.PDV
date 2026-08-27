@@ -6,6 +6,7 @@ const read = file => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8'
 const app = read('app.js');
 const backend = read('backend.js');
 const styles = read('styles.css');
+const experience = read('pdv-experience.js');
 
 test('interface scale has three proportional choices and Supabase persistence', () => {
   assert.match(app, /scale:'medium'/);
@@ -18,6 +19,24 @@ test('interface scale has three proportional choices and Supabase persistence', 
   assert.match(app, /name="scale"/);
   assert.match(app, /state\.settings\.appearance=\{mode:d\.mode,palette,accent,shell,scale\}/);
   assert.match(backend, /theme:\s*\{\s*\.\.\.\(appearance\s*\|\|/);
+  assert.match(experience, /html\[data-scale="large"\]\{font-size:18px\}/);
+  assert.match(experience, /pos-touch-shortcuts button\{min-height:104px/);
+});
+
+test('Minimum is a distinct GRASSI shell and PDV theme', () => {
+  assert.match(experience, /value="minimum"/);
+  assert.match(experience, /Minimum GRASSI/);
+  assert.match(experience, /data-shell="minimum"/);
+  assert.match(experience, /pdv\.pos-theme-minimum/);
+  assert.match(experience, /PASSE OU BUSQUE O PRODUTO/);
+  assert.doesNotMatch(experience, /LC sistemas|LC WEB|LCsistemas/i);
+});
+
+test('remote login accepts the MARCOS username without storing a password in source', () => {
+  assert.match(experience, /usernameDomain = '@grassi\.local'/);
+  assert.match(experience, /Usuario o correo/);
+  assert.match(experience, /normalized\.includes\('@'\)/);
+  assert.doesNotMatch(experience, /12345678/);
 });
 
 test('PDV shortcuts provide notebook alternatives and stay readable', () => {
