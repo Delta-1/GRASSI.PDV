@@ -26,7 +26,7 @@ test('interface scale has three proportional choices and Supabase persistence', 
 
 test('system typography offers several fonts with preview and persistence', () => {
   assert.match(app, /const fontThemes=\{/);
-  for (const id of ['inter', 'system', 'roboto', 'opensans', 'lato', 'poppins', 'nunito', 'ibmplex', 'hyperlegible']) {
+  for (const id of ['source', 'inter', 'system', 'roboto', 'opensans', 'lato', 'poppins', 'nunito', 'ibmplex', 'hyperlegible']) {
     assert.match(app, new RegExp(`\\b${id}:\\{label:`));
   }
   assert.match(app, /function applyFont\(id\)/);
@@ -35,10 +35,32 @@ test('system typography offers several fonts with preview and persistence', () =
   assert.match(app, /applyFont\(appearance\.font\)/);
   assert.match(app, /name="font"/);
   assert.match(app, /input\[name="font"\]/);
-  assert.match(app, /font:'inter'/);
-  assert.match(styles, /--app-font:Inter,Arial,sans-serif/);
+  assert.match(app, /font:'source'/);
+  assert.match(app, /\?String\(value\):'source'/);
+  assert.match(styles, /--app-font:'Source Sans 3','Source Sans Pro',Inter,Arial,sans-serif/);
   assert.match(styles, /font-family:var\(--app-font\)/);
   assert.match(styles, /\.font-choice-grid\{/);
+});
+
+test('documents can be scaled up and printed as A4 right after a sale', () => {
+  const documents = read('document-studio.js');
+  for (const step of ['small', 'medium', 'large', 'xlarge', 'xxlarge']) {
+    assert.match(documents, new RegExp(`'${step}'`));
+    assert.match(styles, new RegExp(`\\.document-sheet\\.font-${step}\\{--doc-scale:`));
+  }
+  assert.match(documents, /Escala del documento/);
+  assert.match(styles, /\.reference-document\{[^}]*font-size:calc\(11px\*var\(--doc-scale,1\)\)/);
+  assert.match(styles, /height:calc\(26px\*var\(--doc-scale,1\)\)/);
+  assert.match(app, /const salePrintFormats=/);
+  for (const format of ['ticket', 'sale-receipt', 'zona-franca-invoice', 'sale-report']) {
+    assert.match(app, new RegExp(`'${format}'`));
+  }
+  assert.match(app, /data-sale-print-format/);
+  assert.match(app, /salePrintFormat:'ticket'/);
+  assert.match(app, /data-doc-return="pos-receipt"/);
+  assert.match(documents, /returnTo==='pos-receipt'\)return globalThis\.reopenSaleReceipt/);
+  assert.match(app, /globalThis\.reopenSaleReceipt=reopenSaleReceipt/);
+  assert.match(styles, /\.receipt-actions\{flex-wrap:wrap/);
 });
 
 test('Minimum is a distinct GRASSI shell and PDV theme', () => {
