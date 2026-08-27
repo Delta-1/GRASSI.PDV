@@ -14,7 +14,10 @@ O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`
 - editor visual do PDV com controles arrastáveis, posição lateral/inferior e densidade configurável;
 - pagamentos por dinheiro, PIX, QR, transferência e conta do cliente, com escolha do cliente dentro do próprio pagamento;
 - cadastro e controle de produtos, estoque mínimo, custo e dois preços de venda;
-- cadastro de clientes com foto, classificação e conta corrente de crédito/débito;
+- cadastro de clientes com foto, classificação, data de nascimento e conta corrente de crédito/débito;
+- lista de clientes com nome, débito/crédito, código, observações e nascimento visíveis já na busca;
+- menu de contexto (botão direito ou botão ⋮ na linha) para pagar a dívida, imprimir demonstrativo de dívida, ver o extrato da conta, adicionar ou corrigir crédito e editar o cliente;
+- cobrança de crediário em quatro passos — conta e movimentações, valor total ou parcial, forma de pagamento e confirmação — lançando o crédito no cliente e a entrada no caixa;
 - venda em conta lançada automaticamente no banco e exibida no extrato do cliente selecionado;
 - cadastro de funcionários com foto e métricas individuais de vendas, faturamento, ticket médio e metas;
 - fluxo financeiro com entradas, saídas, saldo e fechamento de caixa;
