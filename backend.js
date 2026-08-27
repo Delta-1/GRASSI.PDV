@@ -109,7 +109,7 @@
   }
 
   async function saveProduct(product) { return upsert('products', { id: product.id.length === 36 ? product.id : undefined, code: product.code, ean: product.ean, name: product.name, category: product.category, stock: product.stock, min_stock: product.minStock, cost: product.cost, price: product.price, wholesale_price: product.wholesale, unit: product.unit, notes: product.notes, image_url: product.image || null }); }
-  async function saveClient(client) { return upsert('clients', { id: client.id.length === 36 ? client.id : undefined, code: client.code, name: client.name, customer_type: client.type, phone: client.phone, document: client.document, city: client.city, balance: client.balance, notes: client.notes, avatar_url: client.photo || null }); }
+  async function saveClient(client) { return upsert('clients', { id: client.id.length === 36 ? client.id : undefined, code: client.code, name: client.name, customer_type: client.type, phone: client.phone, document: client.document, city: client.city, birthdate: client.birthdate || null, balance: client.balance, notes: client.notes, avatar_url: client.photo || null }); }
   async function saveBusiness(settings) {
     if (!isRemote()) return settings;
     const rows = await request(`/rest/v1/businesses?id=eq.${businessId}`, { method: 'PATCH', body: { name: settings.businessName, legal_name: settings.legalName, tax_id: settings.nit, email: settings.email || null, phone: settings.phone, address: settings.address || null, postal_code: settings.postalCode || null, city: settings.city, currency: 'Bs' } });

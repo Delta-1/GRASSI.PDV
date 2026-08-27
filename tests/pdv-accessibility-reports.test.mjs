@@ -63,6 +63,33 @@ test('documents can be scaled up and printed as A4 right after a sale', () => {
   assert.match(styles, /\.receipt-actions\{flex-wrap:wrap/);
 });
 
+test('clients list shows account data and offers a right-click credit menu', () => {
+  const documents = read('document-studio.js');
+  const backend2 = read('backend.js');
+  assert.match(app, /<th>Nacimiento<\/th>/);
+  assert.match(app, /data-client-row="\$\{c\.id\}"/);
+  assert.match(app, /function birthdateText\(value\)/);
+  assert.match(app, /name="birthdate"/);
+  assert.match(app, /birthdate:d\.birthdate\|\|''/);
+  assert.match(backend2, /birthdate: client\.birthdate \|\| null/);
+  assert.match(app, /addEventListener\('contextmenu'/);
+  assert.match(app, /function clientRowMenu\(id,x,y\)/);
+  for (const action of ['data-debt-flow', 'data-doc-client-debt', 'data-doc-client-statement', 'data-ledger="adjust"', 'data-client-edit']) {
+    assert.match(app, new RegExp(action.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  assert.match(app, /function renderDebtFlow\(\)/);
+  assert.match(app, /async function registerClientPayment\(client,amount,method,note\)/);
+  assert.match(app, /recordLedger\(client\.id,'credit',amount/);
+  assert.match(app, /addCashMovement\(movement\)/);
+  assert.match(app, /debtAmountForm/);
+  assert.match(app, /debtPaymentForm/);
+  assert.match(styles, /\.context-menu\{position:fixed/);
+  assert.match(styles, /\.debt-methods\{/);
+  assert.match(documents, /'client-debt','Demostrativo de deuda del cliente'/);
+  assert.match(documents, /function clientDebtRows\(context\)/);
+  assert.match(documents, /entry\.saleId&&s\.uuid&&entry\.saleId===s\.uuid/);
+});
+
 test('Minimum is a distinct GRASSI shell and PDV theme', () => {
   assert.match(experience, /value="minimum"/);
   assert.match(experience, /Minimum GRASSI/);

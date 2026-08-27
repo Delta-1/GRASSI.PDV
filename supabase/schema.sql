@@ -53,7 +53,7 @@ create index products_business_search_idx on public.products(business_id,name,co
 
 create table public.clients (
   id uuid primary key default gen_random_uuid(), business_id uuid not null references public.businesses(id) on delete cascade,
-  code text not null, name text not null, customer_type text not null default 'Minorista', phone text, document text, city text, notes text, avatar_url text,
+  code text not null, name text not null, customer_type text not null default 'Minorista', phone text, document text, city text, notes text, avatar_url text, birthdate date,
   balance numeric(14,2) not null default 0, purchases integer not null default 0, total_purchased numeric(14,2) not null default 0,
   active boolean not null default true, created_at timestamptz not null default now(), updated_at timestamptz not null default now(),
   unique(business_id,code)
