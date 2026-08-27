@@ -59,6 +59,13 @@ test('Minimum stays dark and Venta rápida can collapse completely', () => {
   assert.match(experience, /pdv\.sidebar-collapsed \.pos-panel-reopen\{display:flex!important\}/);
 });
 
+test('footer dock never leaves the quick-sale side rail visible', () => {
+  assert.match(experience, /pdv\.dock-footer \.pdv-sidebar,\.pdv\.dock-footer \.pos-panel-toggle,\.pdv\.dock-footer \.pos-panel-reopen\{display:none!important\}/);
+  assert.match(experience, /function syncFooterDockState\(\)/);
+  assert.match(experience, /\.dock-footer\.sidebar-collapsed/);
+  assert.match(experience, /toggle\.click\(\)/);
+});
+
 test('PDV shortcuts provide notebook alternatives and stay readable', () => {
   for (const shortcut of ['Alt+A', 'Alt+B', 'Alt+C', 'Alt+M', 'Alt+P', 'Alt+Q', 'Ctrl+Enter', 'Ctrl+Supr']) {
     assert.match(app, new RegExp(shortcut.replace('+', '\\+')));
