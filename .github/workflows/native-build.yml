@@ -3,6 +3,8 @@ name: Aplicativos Windows e Android
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
 

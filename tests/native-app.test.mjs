@@ -44,6 +44,7 @@ test('GitHub builds Windows executables and Android APK', () => {
   assert.match(packageJson, /GRASSI-PDV-ERP-Setup/);
   assert.match(packageJson, /GRASSI-PDV-ERP-Portable/);
   assert.match(workflow, /npm run desktop:build/);
+  assert.match(workflow, /branches:\s+\- main/);
   assert.match(workflow, /release\/\*\.exe/);
   assert.match(workflow, /assembleDebug/);
   assert.match(workflow, /app-debug\.apk/);
