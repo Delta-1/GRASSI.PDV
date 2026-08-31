@@ -70,7 +70,7 @@ npm ci
 npm run desktop:start
 ```
 
-Para gerar os instaladores pelo GitHub, abra **Actions → Aplicativos Windows e Android → Run workflow**. Ao concluir, a execução disponibiliza:
+Os instaladores são gerados automaticamente ao atualizar a branch `main`. Também é possível abrir **Actions → Aplicativos Windows e Android → Run workflow** para gerar uma nova cópia manualmente. Ao concluir, a execução disponibiliza:
 
 - `GRASSI-Windows`: instalador `.exe` e executável portátil `.exe`;
 - `GRASSI-Android`: APK instalável para Android.
