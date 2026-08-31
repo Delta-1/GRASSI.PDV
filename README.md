@@ -1,6 +1,6 @@
-# GRASSI PDV
+# GRASSI PDV & ERP
 
-MVP web de um sistema PDV e ERP whitelabel, criado para uma operação comercial boliviana com vendas no varejo e no atacado.
+Sistema unificado PDV e ERP para uma operação comercial boliviana com vendas no varejo e no atacado. A mesma base funciona como aplicativo Windows, aplicativo Android e PWA.
 
 O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`). A experiência operacional e a arquitetura visual foram redesenhadas após um estudo do NEX Web: menu lateral compacto, páginas orientadas a tabelas, formulários em tela própria e PDV em tela cheia dividido entre itens e resumo. A identidade e a implementação permanecem próprias.
 
@@ -25,9 +25,9 @@ O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`
 - relatórios imprimíveis em padrão oficial tabular, com fundo branco, cabeçalhos cinza, bordas pretas e modelos de resumo de caixa, recibo A4 e factura comercial de Zona Franca;
 - personalização whitelabel de nome, razão social, NIT e cidade;
 - modo claro, escuro ou automático, cinco paletas e escala proporcional Pequena/Média/Grande (Média preserva o visual original);
-- dez opções de tipografia para todo o sistema, com Source Sans Pro como padrão (mais Inter, Sistema, Roboto, Open Sans, Lato, Poppins, Nunito Sans, IBM Plex Sans e Atkinson Hyperlegible), prévia imediata na tela de Apariencia e retorno automático para Arial quando não houver internet;
+- tipografia operacional grande em Times New Roman, caixa alta e números tabulares alinhados no ERP, PDV, recibos e relatórios;
 - escala do documento em cinco níveis (85% a 155%) no editor de documentos, aumentando texto e altura das linhas também nos modelos oficiais A4;
-- ao concluir a venda é possível imprimir o cupom térmico ou diretamente os formatos A4 (informe de venda, factura de Zona Franca e informe detalhado), com formato sugerido configurável em Configuración → Ventas;
+- ao concluir uma venda real, o operador escolhe e visualiza um dos dois recibos oficiais A4 tabulares; o modelo padrão é configurável e o cupom térmico fica restrito a simulações;
 - importação universal de produtos e clientes com prévia, mapeamento de colunas, modelos CSV e suporte a CSV, TSV, XLS e XLSX;
 - logs de auditoria com usuário, horário, módulo, terminal/dispositivo e console de eventos somente leitura;
 - exportação CSV de produtos, clientes e funcionários;
@@ -60,6 +60,22 @@ Depois acesse:
 
 - painel ERP: `http://localhost:4173/index.html`;
 - terminal PDV separado: `http://localhost:4173/pdv.html`.
+
+## Aplicativo único para Windows e Android
+
+O aplicativo nativo abre o ERP em uma janela própria. O botão de nova venda abre o PDV dentro do mesmo aplicativo, e o botão **VOLTAR AO ERP** retorna ao painel sem perder a sessão. A versão Android usa exatamente o mesmo fluxo e o mesmo banco Supabase.
+
+```bash
+npm ci
+npm run desktop:start
+```
+
+Para gerar os instaladores pelo GitHub, abra **Actions → Aplicativos Windows e Android → Run workflow**. Ao concluir, a execução disponibiliza:
+
+- `GRASSI-Windows`: instalador `.exe` e executável portátil `.exe`;
+- `GRASSI-Android`: APK instalável para Android.
+
+O PWA e o terminal separado continuam disponíveis como alternativas. Nenhuma chave `service_role` é empacotada; o aplicativo usa somente a chave pública do frontend e as políticas RLS do Supabase.
 
 ## Publicação
 
