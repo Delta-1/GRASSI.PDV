@@ -46,9 +46,12 @@ assert.match(styles, /style-official:not\(\.reference-document\).*border:1px sol
 assert.match(styles, /Tipografia operacional GRASSI/, 'sistema deve possuir padrão tipográfico único');
 assert.doesNotMatch(app, /state\.clients=\[\];state\.products=\[\];state\.sales=\[\]/, 'atualizações não podem apagar a operação local');
 assert.match(app, /Migrações preservadoras/, 'migrações locais devem preservar os dados existentes');
-assert.match(styles, /font-family:"Times New Roman",Times,serif!important/, 'sistema e documentos devem usar Times New Roman');
+assert.match(styles, /font-family:Arial,Helvetica,sans-serif!important/, 'sistema e documentos devem usar Arial');
 assert.match(styles, /text-transform:uppercase/, 'todos os textos devem aparecer em maiúsculas');
 assert.match(styles, /font-variant-numeric:tabular-nums lining-nums/, 'valores devem usar números tabulares alinhados');
+assert.match(styles, /body\.printing-sale-document button[^}]*display:none!important/, 'impressão da venda não deve incluir botões do sistema');
+assert.match(styles, /padding:8mm!important/, 'impressão deve usar margens internas menores');
+assert.match(app, /receiptTemplate:'classic-form',fontSize:'large'/, 'recibo final deve abrir em escala grande');
 
 for (const cssClass of ['reference-cash', 'reference-receipt', 'reference-zona']) {
   assert.match(styles, new RegExp(`\\.${cssClass}`), `${cssClass} deve possuir estilo próprio`);
