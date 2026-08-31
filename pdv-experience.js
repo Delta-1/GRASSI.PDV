@@ -178,7 +178,7 @@
     if (pdvLink) sessionStorage.setItem('grassi.pos.unlocked', '1');
 
     const action = event.target.closest?.('[data-action]')?.dataset.action;
-    if (!adminMode || action !== 'open-pos') return;
+    if (!adminMode || globalThis.GRASSI_NATIVE_APP || action !== 'open-pos') return;
     event.preventDefault();
     event.stopImmediatePropagation();
     openDedicatedPdv();
@@ -186,7 +186,7 @@
 
   document.addEventListener('keydown', event => {
     const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target?.tagName);
-    if (!adminMode || typing || event.key !== 'F3') return;
+    if (!adminMode || globalThis.GRASSI_NATIVE_APP || typing || event.key !== 'F3') return;
     event.preventDefault();
     event.stopImmediatePropagation();
     openDedicatedPdv();
