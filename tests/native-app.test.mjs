@@ -41,6 +41,7 @@ test('GitHub builds Windows executables and Android APK', () => {
   const workflow = read('.github/workflows/native-build.yml');
   const packageJson = read('package.json');
   assert.match(packageJson, /electron-builder/);
+  assert.match(packageJson, /--publish never/);
   assert.match(packageJson, /GRASSI-PDV-ERP-Setup/);
   assert.match(packageJson, /GRASSI-PDV-ERP-Portable/);
   assert.match(workflow, /npm run desktop:build/);
