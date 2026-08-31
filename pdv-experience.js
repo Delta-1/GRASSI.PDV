@@ -392,10 +392,25 @@
     }
   }
 
+  function clarifySaleReceiptSetting() {
+    document.querySelector('[data-sale-print-format]')?.closest('.field')?.remove();
+    const select = document.querySelector('select[name="saleReceiptTemplate"]');
+    if (!select || select.dataset.officialReceiptCopy) return;
+    select.dataset.officialReceiptCopy = 'true';
+    const field = select.closest('.field');
+    const label = field?.querySelector('label');
+    const helper = field?.querySelector('small');
+    if (label) label.textContent = 'Modelo del recibo de venta';
+    if (select.options[0]) select.options[0].textContent = 'Formulario oficial tabular — modelo principal enviado';
+    if (select.options[1]) select.options[1].textContent = 'Recibo oficial tabular — modelo anterior';
+    if (helper) helper.textContent = 'Este modelo A4 se mostrará e imprimirá al finalizar una venta. No se usará cupón térmico.';
+  }
+
   function syncExperience() {
     syncClientFlow();
     enhanceLogin();
     ensureMinimumOptions();
+    clarifySaleReceiptSetting();
     syncFooterDockState();
   }
 

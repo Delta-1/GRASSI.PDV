@@ -27,13 +27,28 @@ for (const field of ['zone', 'pointOfSale', 'authorizationCode']) {
 }
 
 assert.match(app, /name="saleReceiptTemplate"/, 'configurações devem permitir escolher o modelo do recibo');
+assert.match(app, /data-sale-receipt-format="classic-form"/, 'finalização deve oferecer o formulário principal');
+assert.match(app, /data-sale-receipt-format="modern"/, 'finalização deve oferecer o recibo anterior');
+assert.match(app, /receiptTemplate:'classic-form'/, 'finalização deve renderizar a prévia principal');
+assert.match(app, /receiptTemplate:'modern'/, 'finalização deve renderizar a prévia alternativa');
+assert.match(app, /Imprimir formato seleccionado/, 'finalização deve imprimir o modelo escolhido');
+assert.doesNotMatch(app, /Ver cupón rápido/, 'venda não deve oferecer o cupom térmico antigo');
+assert.match(app, /printing-sale-document/, 'impressão final deve usar o layout oficial de venda');
+assert.match(styles, /body\.printing-sale-document .*reference-document/, 'CSS de impressão deve preservar o documento A4');
+assert.match(read('pdv-experience.js'), /No se usará cupón térmico/, 'configurações devem explicar o novo padrão oficial');
 assert.match(app, /\['Unidad','Paquete','Caja','Balde','Bolsa','Botella','Lata','Kg'\]/, 'cadastro de produtos deve oferecer Balde como unidade de medida');
-assert.match(studio, /saleReceiptTemplate==='modern'/, 'renderização deve alternar entre modelo clássico e moderno');
+assert.match(studio, /receiptTemplate==='modern'/, 'renderização deve alternar entre modelo clássico e moderno');
 assert.match(backend, /saleReceiptTemplate: settings\.saleReceiptTemplate/, 'modelo escolhido deve persistir no Supabase');
 assert.match(studio, /const styles=\{official:'Oficial tabular'\}/, 'todos os documentos devem usar apenas o padrão oficial');
 assert.match(studio, /style:'official',accent:'#111111'/, 'configuração salva não deve reativar estilos decorativos');
 assert.match(styles, /Padrão oficial tabular para todos os documentos gerados/, 'relatórios genéricos devem possuir grade oficial própria');
 assert.match(styles, /style-official:not\(\.reference-document\).*border:1px solid #222/, 'documentos oficiais devem usar bordas tabulares pretas');
+assert.match(styles, /Tipografia operacional GRASSI/, 'sistema deve possuir padrão tipográfico único');
+assert.doesNotMatch(app, /state\.clients=\[\];state\.products=\[\];state\.sales=\[\]/, 'atualizações não podem apagar a operação local');
+assert.match(app, /Migrações preservadoras/, 'migrações locais devem preservar os dados existentes');
+assert.match(styles, /font-family:"Times New Roman",Times,serif!important/, 'sistema e documentos devem usar Times New Roman');
+assert.match(styles, /text-transform:uppercase/, 'todos os textos devem aparecer em maiúsculas');
+assert.match(styles, /font-variant-numeric:tabular-nums lining-nums/, 'valores devem usar números tabulares alinhados');
 
 for (const cssClass of ['reference-cash', 'reference-receipt', 'reference-zona']) {
   assert.match(styles, new RegExp(`\\.${cssClass}`), `${cssClass} deve possuir estilo próprio`);
