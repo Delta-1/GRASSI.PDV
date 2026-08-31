@@ -26,7 +26,7 @@ test('interface scale has three proportional choices and Supabase persistence', 
 
 test('system typography offers several fonts with preview and persistence', () => {
   assert.match(app, /const fontThemes=\{/);
-  for (const id of ['source', 'inter', 'system', 'roboto', 'opensans', 'lato', 'poppins', 'nunito', 'ibmplex', 'hyperlegible']) {
+  for (const id of ['arial', 'source', 'inter', 'system', 'roboto', 'opensans', 'lato', 'poppins', 'nunito', 'ibmplex', 'hyperlegible']) {
     assert.match(app, new RegExp(`\\b${id}:\\{label:`));
   }
   assert.match(app, /function applyFont\(id\)/);
@@ -35,9 +35,9 @@ test('system typography offers several fonts with preview and persistence', () =
   assert.match(app, /applyFont\(appearance\.font\)/);
   assert.match(app, /name="font"/);
   assert.match(app, /input\[name="font"\]/);
-  assert.match(app, /font:'source'/);
-  assert.match(app, /\?String\(value\):'source'/);
-  assert.match(styles, /--app-font:'Source Sans 3','Source Sans Pro',Inter,Arial,sans-serif/);
+  assert.match(app, /font:'arial'/);
+  assert.match(app, /\?String\(value\):'arial'/);
+  assert.match(styles, /--app-font:Arial,Helvetica,sans-serif/);
   assert.match(styles, /font-family:var\(--app-font\)/);
   assert.match(styles, /\.font-choice-grid\{/);
 });
@@ -61,6 +61,17 @@ test('documents can be scaled up and printed as A4 right after a sale', () => {
   assert.match(documents, /returnTo==='pos-receipt'\)return globalThis\.reopenSaleReceipt/);
   assert.match(app, /globalThis\.reopenSaleReceipt=reopenSaleReceipt/);
   assert.match(styles, /\.receipt-actions\{flex-wrap:wrap/);
+  assert.match(documents, /fontSize:'large'/);
+  assert.match(styles, /@page\{size:A4;margin:0\}/);
+});
+
+test('PDV catalog and cart scroll independently and training product has an image', () => {
+  assert.match(styles, /#posCatalogRegion\{min-width:0;min-height:0;overflow:hidden\}/);
+  assert.match(styles, /\.pos-product-grid,#posCartRegion\{[^}]*overflow-y:auto!important/);
+  assert.match(styles, /touch-action:pan-y/);
+  assert.match(app, /trainingProductImage='\.\/assets\/training-product\.svg'/);
+  assert.match(app, /const productImage=product=>/);
+  assert.match(backend, /image_url: '\.\/assets\/training-product\.svg'/);
 });
 
 test('clients list shows account data and offers a right-click credit menu', () => {
