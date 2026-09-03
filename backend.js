@@ -24,7 +24,10 @@
     const response = await fetch(`${config.supabaseUrl}${path}`, { ...options, headers, body: json(options.body) });
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
-      throw new Error(payload.message || payload.error_description || payload.hint || `Erro ${response.status}`);
+      const error = new Error(payload.message || payload.error_description || payload.hint || `Erro ${response.status}`);
+      error.status = response.status;
+      error.code = payload.code || '';
+      throw error;
     }
     if (response.status === 204) return null;
     return response.json().catch(() => null);
