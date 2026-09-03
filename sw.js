@@ -1,7 +1,7 @@
-const CACHE = 'grassi-shell-v48';
+const CACHE = 'grassi-shell-v49';
 const CORE = [
-  './', './index.html', './pdv.html', './styles.css?v=39', './config.js?v=17',
-  './backend.js?v=32', './app.js?v=42', './document-studio.js?v=33', './pwa.js?v=17', './import-wizard.js?v=18', './pdv-experience.js?v=27', './native-shell.js?v=1', './manifest.webmanifest',
+  './', './index.html', './pdv.html', './styles.css?v=40', './config.js?v=17',
+  './backend.js?v=32', './app.js?v=43', './document-studio.js?v=33', './pwa.js?v=17', './import-wizard.js?v=18', './pdv-experience.js?v=28', './native-shell.js?v=1', './manifest.webmanifest',
   './assets/grassi-logo.png', './assets/grassi-symbol.png', './assets/training-product.svg', './assets/icon-192.png',
   './assets/icon-512.png', './assets/icon-maskable-192.png', './assets/icon-maskable-512.png',
   './assets/apple-touch-icon.png', './assets/favicon.ico'

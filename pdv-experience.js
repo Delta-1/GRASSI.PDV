@@ -127,11 +127,11 @@
     .pos-theme-preview.theme-minimum span,.pos-theme-preview.theme-minimum i,.pos-theme-preview.theme-minimum b{border-color:#4a4b50;border-radius:5px;background:#2b2c2f}
     .pos-theme-preview.theme-minimum i{outline:2px solid #e20b13;outline-offset:-2px}
     .pos-theme-preview.theme-minimum small{color:#f5f5f6}
-    .pdv.pos-theme-minimum{--surface:#292a2d;--surface-2:#202124;--line:#4a4b50;--text:#f7f7f8;--muted:#b7b8bd;--accent:#e20b13;--accent-rgb:226,11,19;color:var(--text);background:#202124}
+    .pdv.pos-theme-minimum{--surface:#292a2d;--surface-2:#202124;--line:#4a4b50;--text:#f7f7f8;--muted:#b7b8bd;color:var(--text);background:#202124}
     .pdv.pos-theme-minimum .pdv-main,.pdv.pos-theme-minimum .pdv-sidebar,.pdv.pos-theme-minimum .pdv-title,.pdv.pos-theme-minimum .pdv-footer,.pdv.pos-theme-minimum .pos-touch-shortcuts,.pdv.pos-theme-minimum .pos-touch-shortcuts button,.pdv.pos-theme-minimum .data-region,.pdv.pos-theme-minimum .data-table thead,.pdv.pos-theme-minimum .search-field input,.pdv.pos-theme-minimum .quantity-field input,.pdv.pos-theme-minimum .pos-widget,.pdv.pos-theme-minimum .suggestions,.pdv.pos-theme-minimum .suggestion,.pdv.pos-theme-minimum .pos-catalog-head,.pdv.pos-theme-minimum .pos-cart-panel>header,.pdv.pos-theme-minimum .pos-category-strip,.pdv.pos-theme-minimum .pos-category-strip button,.pdv.pos-theme-minimum .qty-stepper,.pdv.pos-theme-minimum .qty-stepper button,.pdv.pos-theme-minimum .qty-stepper input,.pdv.pos-theme-minimum .pos-cart-card,.pdv.pos-theme-minimum .pos-cart-mobile-edit,.pdv.pos-theme-minimum .company-badge,.pdv.pos-theme-minimum .language-switch,.pdv.pos-theme-minimum .shortcut-trigger{background:var(--surface);border-color:var(--line);color:var(--text);box-shadow:none}
     .pdv.pos-theme-minimum .pdv-main{background:#202124}
     .pdv.pos-theme-minimum .pos-product-grid,.pdv.pos-theme-minimum .pos-product-visual{background:#202124}
-    .pdv.pos-theme-minimum .suggestion:hover,.pdv.pos-theme-minimum .pos-category-strip button.active{background:rgba(226,11,19,.14);color:#fff}
+    .pdv.pos-theme-minimum .suggestion:hover,.pdv.pos-theme-minimum .pos-category-strip button.active{background:rgba(var(--accent-rgb),.14);color:#fff}
     .pdv.pos-theme-minimum .sync-pill.online{background:#173a2a;color:#7ce1ab}.pdv.pos-theme-minimum .sync-pill.pending{background:#493819;color:#f4cf72}.pdv.pos-theme-minimum .sync-pill.offline{background:#4b2026;color:#ff9ca8}
     .pdv.pos-theme-minimum .pdv-title{min-height:86px;position:relative;border-bottom:1px solid var(--line)}
     .pdv.pos-theme-minimum .pdv-title::after{content:'BUSQUE O ESCANEE EL PRODUCTO';position:absolute;left:50%;top:50%;max-width:44%;transform:translate(-50%,-50%);font-size:clamp(19px,2vw,32px);font-weight:900;letter-spacing:.06em;text-align:center;color:#fff;pointer-events:none}
@@ -139,7 +139,7 @@
     .pdv.pos-theme-minimum .pdv-title h1{font-size:17px}
     .pdv.pos-theme-minimum .pdv-search{padding-block:18px}
     .pdv.pos-theme-minimum .pdv-search .search-field input{height:62px;border:2px solid #696a70;font-size:18px}
-    .pdv.pos-theme-minimum .pdv-search .search-field:focus-within input{border-color:var(--accent);box-shadow:0 0 0 3px rgba(226,11,19,.18)}
+    .pdv.pos-theme-minimum .pdv-search .search-field:focus-within input{border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.18)}
     .pdv.pos-theme-minimum .quantity-field input{height:62px}
     .pdv.pos-theme-minimum .pos-client-strip{border-radius:9px;background:#292a2d;border-color:#4a4b50;box-shadow:none}
     .pdv.pos-theme-minimum .pos-client-strip-icon{border-radius:7px;background:#202124;box-shadow:none}
@@ -443,6 +443,13 @@
     if (event.target?.matches?.('#posLayoutForm select[name="theme"]')) {
       const preview = event.target.form?.querySelector('.pos-theme-preview');
       if (preview) preview.className = `pos-theme-preview theme-${event.target.value}`;
+    }
+    if (event.target?.matches?.('#posLayoutForm select[name="palette"],#posAppearanceForm select[name="palette"]')) {
+      const preview = event.target.form?.querySelector('.pos-color-preview');
+      if (preview) {
+        preview.dataset.posColorPreview = event.target.value;
+        preview.querySelectorAll('[data-pos-preview-color]').forEach(item => item.classList.toggle('active', item.dataset.posPreviewColor === event.target.value));
+      }
     }
   }, true);
 

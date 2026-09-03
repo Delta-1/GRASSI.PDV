@@ -93,8 +93,8 @@ create index cash_business_date_idx on public.cash_movements(business_id,created
 
 create table public.business_settings (
   business_id uuid primary key references public.businesses(id) on delete cascade,
-  theme jsonb not null default '{"mode":"light","palette":"blue","accent":"#0098f9"}',
-  pos_layout jsonb not null default '{"dock":"sidebar","density":"comfortable","theme":"touch","items":["client","wholesale","delivery","notes","payment"]}',
+  theme jsonb not null default '{"mode":"light","palette":"blue","accent":"#3b82f6","scale":"medium","font":"inter","shell":"nex"}',
+  pos_layout jsonb not null default '{"dock":"sidebar","density":"comfortable","theme":"touch","mode":"light","palette":"blue","borders":"strong","items":["client","wholesale","delivery","notes","payment"]}',
   app_config jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now()
 );

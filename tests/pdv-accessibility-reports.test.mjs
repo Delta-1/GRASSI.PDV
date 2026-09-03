@@ -35,9 +35,9 @@ test('system typography offers several fonts with preview and persistence', () =
   assert.match(app, /applyFont\(appearance\.font\)/);
   assert.match(app, /name="font"/);
   assert.match(app, /input\[name="font"\]/);
-  assert.match(app, /font:'arial'/);
-  assert.match(app, /\?String\(value\):'arial'/);
-  assert.match(styles, /--app-font:Arial,Helvetica,sans-serif/);
+  assert.match(app, /font:'inter'/);
+  assert.match(app, /\?String\(value\):'inter'/);
+  assert.match(styles, /--app-font:Inter,system-ui/);
   assert.match(styles, /font-family:var\(--app-font\)/);
   assert.match(styles, /\.font-choice-grid\{/);
 });
