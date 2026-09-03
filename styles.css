@@ -1,5 +1,5 @@
 :root {
-  --app-font:Arial,Helvetica,sans-serif;
+  --app-font:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   --accent:#0098f9;
   --accent-rgb:0,152,249;
   --accent-soft:rgba(var(--accent-rgb),.10);
@@ -544,3 +544,53 @@ html{font-size:18px}html body,html body button,html body input,html body select,
 
 /* Aplicativo unificado: navegação clara entre ERP e PDV. */
 html[data-native-app] body{overscroll-behavior:none}.native-back-erp{min-height:42px!important;padding-inline:15px!important;gap:8px!important;background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important;font-weight:800!important}.native-back-erp svg{width:18px;height:18px}@media(max-width:760px){.native-back-erp{position:fixed;left:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:80;min-height:54px!important;border-radius:14px!important;box-shadow:0 12px 28px rgba(0,0,0,.28)}html[data-native-app] .pdv{padding-bottom:calc(84px + env(safe-area-inset-bottom))}}
+
+/* Inter e leitura confortável em todo o ERP e PDV. */
+html body{font-size:19px}
+html body button,html body input,html body select,html body textarea{font-size:17px!important}
+html body small,html body .page-count,html body .field small,html body .helper{font-size:14px!important}
+html body .menu-label,html body .tab,html body .settings-nav button,html body .report-group button,html body .pos-touch-shortcuts span{font-size:16px!important}
+html body .data-table th,html body .data-table td{font-size:16px!important;line-height:1.35}
+html body .metric span,html body .detail-grid span,html body label{font-size:15px}
+.pdv .pos-product-name{height:36px;font-size:12px;line-height:1.4}
+.pdv .pos-product-meta,.pdv .pos-product-card>i{font-size:9px;line-height:1.35}
+.pdv .pos-product-card>strong{font-size:16px}
+.pdv .pdv-links button,.pdv .pos-widget{font-size:14px}
+
+/* ERP: menu compacto, estável e expansível ao aproximar o mouse. */
+@media(min-width:721px){
+ html:not([data-shell="loop"]) .nex-navbar{width:72px;will-change:width;box-shadow:4px 0 20px rgba(20,30,55,.055)}
+ html:not([data-shell="loop"]) .nex-navbar:hover,html:not([data-shell="loop"]) .nex-navbar.open{width:236px;box-shadow:12px 0 30px rgba(20,30,55,.13)}
+ html:not([data-shell="loop"]) .menu-toggle{width:72px;height:64px}
+ html:not([data-shell="loop"]) .nex-navbar:hover .menu-toggle,html:not([data-shell="loop"]) .nex-navbar.open .menu-toggle{width:236px;justify-content:flex-start;padding:0 21px}
+ html:not([data-shell="loop"]) .nex-navbar:hover .menu-toggle strong,html:not([data-shell="loop"]) .nex-navbar.open .menu-toggle strong{display:block}
+ html:not([data-shell="loop"]) .nex-menu{min-height:0;flex:1;overflow-x:hidden;overflow-y:auto;scrollbar-width:none}
+ html:not([data-shell="loop"]) .nex-menu::-webkit-scrollbar{display:none}
+ html:not([data-shell="loop"]) .menu-bottom{flex:none;margin-top:8px}
+ html:not([data-shell="loop"]) .menu-item{width:46px;height:46px;padding:10px}
+ html:not([data-shell="loop"]) .menu-icon{width:26px;height:26px}
+ html:not([data-shell="loop"]) .nex-navbar:hover .menu-item,html:not([data-shell="loop"]) .nex-navbar.open .menu-item{width:208px;border-radius:12px}
+ html:not([data-shell="loop"]) .nex-navbar:hover .menu-label,html:not([data-shell="loop"]) .nex-navbar.open .menu-label{display:block;overflow:hidden;text-overflow:ellipsis}
+ html:not([data-shell="loop"]) .nex-workspace{margin-left:72px;width:calc(100% - 72px)}
+ html:not([data-shell="loop"]) .nex-navbar:hover~.nex-workspace,html:not([data-shell="loop"]) .nex-navbar.open~.nex-workspace{margin-left:236px;width:calc(100% - 236px)}
+ html:not([data-shell="loop"]) .page::before{left:72px}
+}
+
+/* Personalização independente do PDV. */
+.pdv.pos-mode-light{--surface:#fff;--surface-2:#f5f7fa;--panel:#fff;--line:#d3d9e2;--text:#15181d;--muted:#626b78;--shadow:rgba(24,39,75,.12);color-scheme:light;color:var(--text);background:var(--surface-2)}
+.pdv.pos-mode-dark{--surface:#24272d;--surface-2:#17191e;--panel:#24272d;--line:#474d57;--text:#f5f7fa;--muted:#b6beca;--shadow:rgba(0,0,0,.38);color-scheme:dark;color:var(--text);background:var(--surface-2)}
+.pdv.pos-mode-dark .pdv-main,.pdv.pos-mode-dark .pdv-sidebar,.pdv.pos-mode-dark .pdv-title,.pdv.pos-mode-dark .pdv-footer,.pdv.pos-mode-dark .pos-touch-shortcuts,.pdv.pos-mode-dark .pos-touch-shortcuts button,.pdv.pos-mode-dark .data-region,.pdv.pos-mode-dark .data-table thead,.pdv.pos-mode-dark .search-field input,.pdv.pos-mode-dark .quantity-field input,.pdv.pos-mode-dark .pos-widget,.pdv.pos-mode-dark .suggestions,.pdv.pos-mode-dark .suggestion,.pdv.pos-mode-dark .pos-catalog-head,.pdv.pos-mode-dark .pos-cart-panel>header,.pdv.pos-mode-dark .pos-category-strip,.pdv.pos-mode-dark .pos-category-strip button,.pdv.pos-mode-dark .qty-stepper,.pdv.pos-mode-dark .qty-stepper button,.pdv.pos-mode-dark .qty-stepper input,.pdv.pos-mode-dark .pos-cart-card,.pdv.pos-mode-dark .pos-cart-mobile-edit,.pdv.pos-mode-dark .company-badge,.pdv.pos-mode-dark .language-switch,.pdv.pos-mode-dark .shortcut-trigger{background:var(--surface);border-color:var(--line);color:var(--text)}
+.pdv[data-pos-palette="blue"]{--accent:#3b82f6;--accent-rgb:59,130,246}.pdv[data-pos-palette="green"]{--accent:#16a37a;--accent-rgb:22,163,122}.pdv[data-pos-palette="purple"]{--accent:#765bd8;--accent-rgb:118,91,216}.pdv[data-pos-palette="orange"]{--accent:#e9822d;--accent-rgb:233,130,45}.pdv[data-pos-palette="red"]{--accent:#d94b5b;--accent-rgb:217,75,91}.pdv[data-pos-palette="grassi"]{--accent:#e20b13;--accent-rgb:226,11,19}
+.pdv.pos-border-strong .pos-catalog,.pdv.pos-border-strong .pos-cart-panel,.pdv.pos-border-strong .data-region,.pdv.pos-border-strong .search-field input,.pdv.pos-border-strong .quantity-field input,.pdv.pos-border-strong .pos-category-strip,.pdv.pos-border-strong .pos-product-card,.pdv.pos-border-strong .pos-cart-card,.pdv.pos-border-strong .pos-widget,.pdv.pos-border-strong .pos-touch-shortcuts button{border-width:2px}
+.pdv.pos-border-strong .pos-catalog,.pdv.pos-border-strong .pos-cart-panel{box-shadow:0 0 0 1px color-mix(in srgb,var(--line) 45%,transparent),0 8px 26px var(--shadow)}
+.pos-customize-trigger svg{width:16px;height:16px}.pos-customize-trigger span{font-size:11px;font-weight:700}
+.pos-appearance-form>p{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.5}
+.pos-customizer-grid{margin:16px 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pos-customizer-grid label{display:grid;gap:7px;color:var(--muted);font-size:13px;font-weight:700}
+.pos-customizer-grid select{width:100%;height:44px;padding:0 12px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--text)}
+.pos-color-preview{min-height:62px;margin-bottom:18px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pos-color-preview i{width:30px;height:30px;border:3px solid var(--surface);border-radius:50%;background:var(--preview-color);box-shadow:0 0 0 1px var(--line)}
+.pos-color-preview i.active{box-shadow:0 0 0 3px var(--text)}
+.pos-color-preview span{min-width:190px;flex:1;color:var(--muted);font-size:12px;line-height:1.4}
+@media(max-width:900px){.pos-customize-trigger span{display:none}.pos-customizer-grid{grid-template-columns:1fr}.pos-color-preview span{min-width:100%}}
+@media(max-width:720px){html body{font-size:18px}html body button,html body input,html body select,html body textarea{font-size:16px!important}html body .data-table th,html body .data-table td{font-size:15px!important}.pos-customize-trigger{width:38px;padding:0;justify-content:center}}
