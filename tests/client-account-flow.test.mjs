@@ -47,3 +47,26 @@ test('database RPC records customer-account sales in the ledger', () => {
   assert.match(migration, /record_client_movement_v2\(p_business_id,p_client_id,'debit',total_value/);
   assert.match(migration, /update clients set purchases=purchases\+1,total_purchased=total_purchased\+total_value/);
 });
+
+test('database stock validation follows the PDV configuration', () => {
+  const fixMigration = readFileSync(
+    new URL('../supabase/migrations/20260903_fix_sale_stock_account_sync.sql', import.meta.url),
+    'utf8',
+  );
+  assert.match(fixMigration, /drop constraint if exists products_stock_check/);
+  assert.match(fixMigration, /app_config->'options'->>'blockNoStock'/);
+  assert.match(fixMigration, /block_no_stock:=coalesce\(block_no_stock,true\)/);
+  assert.match(fixMigration, /block_no_stock and p\.stock<qty/);
+  assert.match(fixMigration, /record_client_movement_v2\(p_business_id,p_client_id,'debit',total_value/);
+});
+
+test('online business errors do not become fake offline sales', () => {
+  assert.match(backend, /error\.status = response\.status/);
+  assert.match(app, /retryableSaleSyncError/);
+  assert.match(app, /if\(!retryableSaleSyncError\(error\)\)/);
+  assert.match(app, /La venta no fue registrada/);
+});
+
+test('local stock mirrors the configured negative-stock behavior', () => {
+  assert.match(app, /state\.settings\.options\.blockNoStock\?Math\.max\(0,p\.stock-i\.qty\):p\.stock-i\.qty/);
+});
