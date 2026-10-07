@@ -6,20 +6,22 @@ const app = readFileSync(new URL('../app.js', import.meta.url), 'utf8');
 const backend = readFileSync(new URL('../backend.js', import.meta.url), 'utf8');
 const pdvExperience = readFileSync(new URL('../pdv-experience.js', import.meta.url), 'utf8');
 const migration = readFileSync(
-  new URL('../supabase/migrations/20260821_reports_documents_tutorials.sql', import.meta.url),
+  new URL('../supabase/migrations/20261007151555_sale_editing_and_account_registration.sql', import.meta.url),
   'utf8',
 );
 
-test('Cuenta cliente can be selected before a client is chosen', () => {
-  assert.match(app, /function choosePayment\(value,focus=false\)/);
-  assert.match(app, /value==='Cuenta cliente'&&!ui\.posClient.*posClientPicker\('payment'\)/);
-  assert.doesNotMatch(app, /Cuenta cliente'&&!ui\.posClient\?'disabled'/);
+test('register sale is separate from choosing a payment method', () => {
+  assert.match(app, /data-action="register-account-sale"/);
+  assert.match(app, /data-action="payment"/);
+  assert.match(app, /async function registerAccountSale\(\)/);
+  assert.match(app, /completeSale\('Cuenta cliente',0\)/);
+  assert.doesNotMatch(app.match(/function paymentLayer\(\).*?function choosePayment/s)?.[0] || '', /Cuenta cliente/);
 });
 
-test('customer picker returns to payment and supports search', () => {
+test('customer picker returns to sale review and supports search', () => {
   assert.match(app, /function posClientPicker\(returnTo=ui\.clientPickerReturn\|\|'pos'\)/);
   assert.match(app, /id="posClientSearch"/);
-  assert.match(app, /function finishClientSelection\(clientId\).*ui\.posClient=clientId.*destination==='payment'.*paymentLayer\(\)/s);
+  assert.match(app, /function finishClientSelection\(clientId\).*ui\.posClient=clientId.*\['review','review-edit','account'\]\.includes\(destination\).*reviewSaleLayer\(\)/s);
 });
 
 test('PDV keeps customer search, creation and selection inside the sale', () => {
@@ -33,7 +35,8 @@ test('PDV keeps customer search, creation and selection inside the sale', () => 
 });
 
 test('checkout refuses a customer-account sale without a customer', () => {
-  assert.match(app, /payment==='Cuenta cliente'&&!client.*posClientPicker\('payment'\)/s);
+  assert.match(app, /function registerAccountSale\(\).*if\(!ui\.posClient\)return posClientPicker\('account'\)/s);
+  assert.match(app, /payment==='Cuenta cliente'&&!client.*posClientPicker\('account'\)/s);
 });
 
 test('sale payload sends the selected customer to Supabase', () => {
@@ -46,6 +49,8 @@ test('database RPC records customer-account sales in the ledger', () => {
   assert.match(migration, /p_payment_method='Cuenta cliente'/);
   assert.match(migration, /record_client_movement_v2\(p_business_id,p_client_id,'debit',total_value/);
   assert.match(migration, /update clients set purchases=purchases\+1,total_purchased=total_purchased\+total_value/);
+  assert.match(migration, /then 'pending' else 'completed'/);
+  assert.match(migration, /null,number_value,s_id/);
 });
 
 test('database stock validation follows the PDV configuration', () => {

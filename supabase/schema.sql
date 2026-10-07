@@ -80,7 +80,11 @@ create index sales_seller_idx on public.sales(business_id,seller_id,created_at d
 create table public.sale_items (
   id uuid primary key default gen_random_uuid(), business_id uuid not null references public.businesses(id) on delete cascade,
   sale_id uuid not null references public.sales(id) on delete cascade, product_id uuid not null references public.products(id),
-  product_name text not null, quantity numeric(14,3) not null check(quantity > 0), unit_price numeric(14,2) not null, total numeric(14,2) not null
+  product_code text, product_name text not null, quantity numeric(14,3) not null check(quantity > 0),
+  base_price numeric(14,2) not null, unit_price numeric(14,2) not null,
+  discount_type text not null default 'percent' check(discount_type in ('percent','value')),
+  discount_value numeric(14,2) not null default 0, discount numeric(14,2) not null default 0,
+  total numeric(14,2) not null
 );
 create index sale_items_sale_idx on public.sale_items(business_id,sale_id);
 
@@ -202,7 +206,7 @@ begin
     qty=(item->>'quantity')::numeric; unit_value=(item->>'unit_price')::numeric;
     select * into p from products where id=(item->>'product_id')::uuid and business_id=p_business_id for update;
     if p_kind='Venta' then update products set stock=stock-qty,updated_at=now() where id=p.id; end if;
-    insert into sale_items(business_id,sale_id,product_id,product_name,quantity,unit_price,total) values(p_business_id,s_id,p.id,p.name,qty,unit_value,qty*unit_value);
+    insert into sale_items(business_id,sale_id,product_id,product_name,quantity,base_price,unit_price,total) values(p_business_id,s_id,p.id,p.name,qty,unit_value,unit_value,qty*unit_value);
   end loop;
   if p_kind='Venta' and p_client_id is not null then
     update clients set purchases=purchases+1,total_purchased=total_purchased+total_value,updated_at=now() where id=p_client_id and business_id=p_business_id;
