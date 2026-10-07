@@ -594,3 +594,68 @@ html body .metric span,html body .detail-grid span,html body label{font-size:15p
 .pos-color-preview span{min-width:190px;flex:1;color:var(--muted);font-size:12px;line-height:1.4}
 @media(max-width:900px){.pos-customize-trigger span{display:none}.pos-customizer-grid{grid-template-columns:1fr}.pos-color-preview span{min-width:100%}}
 @media(max-width:720px){html body{font-size:18px}html body button,html body input,html body select,html body textarea{font-size:16px!important}html body .data-table th,html body .data-table td{font-size:15px!important}.pos-customize-trigger{width:38px;padding:0;justify-content:center}}
+
+/* Fluxo de venda e cadastro de cliente: foco central, etapas claras e leitura ampla. */
+.client-onboarding-modal{width:min(980px,calc(100vw - 34px));max-height:min(880px,calc(100dvh - 34px));margin:auto}
+.client-onboarding-shell{display:grid;gap:22px;text-align:center}
+.client-onboarding-progress{width:min(620px,100%);margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.client-onboarding-progress>i{display:none}
+.client-onboarding-progress span{min-height:46px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--muted);display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:800}
+.client-onboarding-progress span>b{width:23px;height:23px;border-radius:50%;background:var(--line);color:var(--text);display:grid;place-items:center;flex:none;font-size:12px}
+.client-onboarding-progress span.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface));color:var(--text)}
+.client-onboarding-progress span.active>b{background:var(--accent);color:#fff}
+.client-onboarding-shell>.layer-body,.client-onboarding-body{width:min(860px,100%);margin:0 auto;display:grid;gap:18px;text-align:center;overflow:auto}
+.client-onboarding-intro{max-width:680px;margin:0 auto;color:var(--muted);line-height:1.55}
+.client-onboarding-search,.client-search-centered{width:min(680px,100%);margin:0 auto;text-align:left}
+.client-onboarding-region,.client-picker-region{max-height:min(430px,48dvh);overflow:auto;text-align:left;border:1px solid var(--line);border-radius:15px;background:var(--surface)}
+.client-onboarding-region .data-table{margin:0}
+.client-onboarding-empty{padding:30px 22px;text-align:center;color:var(--muted)}
+.client-onboarding-form,.client-registration-body{width:min(720px,100%);margin:0 auto;text-align:left}
+.client-onboarding-foot{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.client-account-notice,.account-client-notice{width:min(720px,100%);margin:0 auto;padding:13px 16px;border:1px solid color-mix(in srgb,var(--accent) 38%,var(--line));border-radius:13px;background:color-mix(in srgb,var(--accent) 8%,var(--surface));color:var(--text);line-height:1.45;display:flex;align-items:center;justify-content:center;gap:10px;text-align:left}
+.account-client-notice svg,.client-registration-intro>svg{width:28px;color:var(--accent);flex:none}
+.account-client-notice span,.account-client-notice strong,.account-client-notice small,.client-registration-intro strong,.client-registration-intro small{display:block}
+.account-client-notice small,.client-registration-intro small{margin-top:3px;color:var(--muted)}
+.client-registration-intro{display:flex;align-items:center;justify-content:center;gap:11px;text-align:left}
+.client-onboarding-shell .pos-client-picker-head{width:min(720px,100%);margin:0 auto;text-align:left}
+
+.sale-review-modal{width:min(880px,calc(100vw - 34px));max-height:min(900px,calc(100dvh - 34px));margin:auto}
+.sale-review-products{display:grid;gap:9px;margin:14px 0 18px}
+.sale-review-products>header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:11px;background:var(--surface-2);color:var(--muted);font-size:12px;font-weight:800}
+.sale-review-products>header div,.sale-review-item>div{min-width:0;display:grid;gap:4px}
+.sale-review-products>header span,.sale-review-products>header strong,.sale-review-item strong,.sale-review-item small{display:block}
+.sale-review-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
+.sale-review-item>div>strong{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.sale-review-item small{color:var(--muted)}
+.sale-review-client{margin:0 0 18px;padding:15px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);display:flex;align-items:center;justify-content:space-between;gap:14px}
+.sale-review-client div{display:grid;gap:4px}
+.sale-review-client small,.sale-choice-help{color:var(--muted);line-height:1.45}
+.sale-choice-help{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.sale-choice-help>div,.payment-now-notice{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);display:flex;align-items:flex-start;gap:9px;text-align:left}
+.sale-choice-help svg,.payment-now-notice svg,.sale-edit-notice svg,.sale-edit-warning svg,.account-sale-status svg{width:22px;color:var(--accent);flex:none}
+.sale-choice-help strong,.sale-choice-help small,.payment-now-notice strong,.payment-now-notice small,.sale-edit-notice strong,.sale-edit-notice small,.sale-edit-warning strong,.sale-edit-warning small,.account-sale-status strong,.account-sale-status small{display:block}
+.sale-choice-help small,.payment-now-notice small,.sale-edit-notice small,.sale-edit-warning small,.account-sale-status small{margin-top:3px;color:var(--muted)}
+.payment-now-notice{margin-bottom:14px}
+.sale-review-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sale-review-actions .sale-choice-help{display:block;margin-top:7px;font-size:12px}
+.account-sale-button{border-color:var(--accent)!important;background:color-mix(in srgb,var(--accent) 9%,var(--surface))!important;color:var(--text)!important}
+.sale-edit-notice,.sale-edit-warning,.account-sale-status{margin:0 0 16px;padding:13px 15px;border-radius:13px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));background:color-mix(in srgb,var(--accent) 8%,var(--surface));line-height:1.45;display:flex;align-items:flex-start;gap:10px;text-align:left}
+.account-sale-status{display:grid;gap:4px}
+.account-sale-status strong{color:var(--accent)}
+.sale-pending-badge{display:inline-flex;align-items:center;min-height:29px;padding:4px 10px;border-radius:999px;background:#fff3cd;color:#715600;font-weight:800}
+
+@media(max-width:720px){
+ .client-onboarding-modal,.sale-review-modal{width:calc(100vw - 16px);max-height:calc(100dvh - 16px);border-radius:16px}
+ .client-onboarding-shell{gap:16px}
+ .client-onboarding-progress{gap:5px}
+ .client-onboarding-progress span{min-height:42px;padding:6px 4px;font-size:10px;gap:4px}
+ .client-onboarding-progress span>b{width:20px;height:20px;font-size:10px}
+ .client-onboarding-region,.client-picker-region{max-height:43dvh;overflow:auto}
+ .client-onboarding-region .data-table,.client-picker-region .data-table{min-width:620px}
+ .sale-review-products>header{align-items:stretch;flex-direction:column}
+ .sale-review-item{grid-template-columns:1fr auto}
+ .sale-review-item>div{grid-column:1/-1}
+ .sale-review-client{align-items:stretch;flex-direction:column;text-align:center}
+ .sale-choice-help{grid-template-columns:1fr}
+ .sale-review-actions{grid-template-columns:1fr}
+}
