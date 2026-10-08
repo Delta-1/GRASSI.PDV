@@ -108,3 +108,11 @@ Pendências antes de uma operação comercial real: homologar a emissão fiscal 
 ## Aviso
 
 Os dados incluídos são fictícios e existem apenas para demonstração da interface e dos fluxos.
+
+## Atualização 1.1.2
+
+- Pesquisa do PDV: use ↑/↓ para escolher o resultado e Enter para adicionar. A busca permanece focada, com o texto selecionado para a próxima pesquisa.
+- Conta do cliente: compras pendentes com seleção múltipla, quitação ou valor parcial por compra, método de pagamento e marcação das compras pagas. Histórico e ajustes continuam disponíveis.
+- Botão direito: ações em vendas, compras do cliente, produtos, movimentos de caixa e atalhos gerais. No celular, use o botão de três pontos.
+- Edição de vendas: carregamento paginado preserva os itens de vendas antigas; os pagamentos já recebidos continuam vinculados ao editar produtos, quantidades, preços, descontos, observações e cliente.
+- Caixa do PDV: confirmação de abertura com fundo e sangria; revisão do fechamento com vendas, crediário, pagamentos recebidos, entradas/saídas por método e impressão. Confirmar salva o relatório e retorna ao ERP.

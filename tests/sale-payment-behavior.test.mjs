@@ -30,3 +30,18 @@ test('persisted paid totals remain valid when the loaded ledger is paginated',()
  const {ctx,sale,client}=fixture();client.ledger=[];sale.amountPaid=75;
  assert.equal(ctx.salePaid(sale),75);assert.equal(ctx.saleRemaining(sale),25);
 });
+test('batch responses use the final server balance even when sale order differs',()=>{
+ const {ctx,client,sale}=fixture();
+ ctx.applyAccountPayment(client,20,'QR','',sale,{movementId:'batch-one',amountPaid:60,clientBalance:-10});
+ ctx.applyAccountPayment(client,30,'QR','',sale,{movementId:'batch-two',amountPaid:90,clientBalance:-10});
+ assert.equal(client.balance,-10);
+ assert.equal(ctx.salePaid(sale),90);
+});
+test('workspace pagination loads older sales and their complete item lists',async()=>{
+ const backend=readFileSync(new URL('../backend.js',import.meta.url),'utf8'),calls=[];
+ const ctx=vm.createContext({request:async path=>{calls.push(path);return calls.length===1?Array.from({length:1000},(_,id)=>({id})):[{id:1000}]}});
+ vm.runInContext(backend.slice(backend.indexOf('  async function loadAll('),backend.indexOf('  async function loadWorkspace(')),ctx);
+ const rows=await ctx.loadAll('/rest/v1/sales?business_id=eq.tenant&order=id.asc');
+ assert.equal(rows.length,1001);assert.equal(rows.at(-1).id,1000);
+ assert.ok(calls[0].endsWith('&limit=1000&offset=0'));assert.ok(calls[1].endsWith('&limit=1000&offset=1000'));
+});

@@ -71,6 +71,10 @@
   const isRemote = () => config.mode === 'supabase' && Boolean(config.supabaseUrl && config.supabasePublishableKey);
   const scoped = table => `/rest/v1/${table}?business_id=eq.${businessId}`;
 
+  async function loadAll(path) {
+    const rows=[];let offset=0;
+    for(;;){const page=await request(`${path}&limit=1000&offset=${offset}`);rows.push(...page);if(page.length<1000)return rows;offset+=page.length;}
+  }
   async function loadWorkspace() {
     if (!isRemote()) return null;
     await refresh();
@@ -78,11 +82,11 @@
       request(`/rest/v1/businesses?select=*&id=eq.${businessId}&limit=1`),
       request(`${scoped('products')}&select=*&order=name.asc`),
       request(`${scoped('clients')}&select=*&order=name.asc`),
-      request(`${scoped('client_ledger')}&select=*&order=created_at.asc`),
+      loadAll(`${scoped('client_ledger')}&select=*&order=created_at.asc,id.asc`),
       request(`${scoped('memberships')}&select=*&active=is.true&order=display_name.asc`),
-      request(`${scoped('sales')}&select=*&order=created_at.desc&limit=500`),
-      request(`${scoped('sale_items')}&select=*`),
-      request(`${scoped('cash_movements')}&select=*&order=created_at.desc&limit=1000`),
+      loadAll(`${scoped('sales')}&select=*&order=created_at.desc,id.asc`),
+      loadAll(`${scoped('sale_items')}&select=*&order=id.asc`),
+      loadAll(`${scoped('cash_movements')}&select=*&order=created_at.desc,id.asc`),
       request(`${scoped('business_settings')}&select=*&limit=1`),
       request(`${scoped('generated_documents')}&select=*&order=created_at.desc&limit=200`)
     ]);
@@ -99,7 +103,7 @@
       clients: clients.map(row => ({ ...fromSnake(row), id: row.id, photo: row.avatar_url || '', balance: Number(row.balance), purchases: Number(row.purchases), total: Number(row.total_purchased), ledger: (ledgerByClient[row.id] || []).map(entry => ({ id: entry.id, date: entry.effective_at || entry.created_at, type: entry.kind, description: entry.description, amount: Number(entry.amount), paymentMethod: entry.payment_method || '', reference: entry.reference || '', saleId: entry.sale_id || null })) })),
       employees: memberships.map(row => ({ id: row.user_id, name: row.display_name, role: row.job_title || (row.role === 'admin' ? 'Administrador' : 'Funcionario'), email: row.email || '', phone: row.phone || '', document: row.document || '', admin: row.role === 'admin', supervisor: row.supervisor, permissions: row.permissions || {}, mustChangePassword: Boolean(row.must_change_password), active: row.active !== false, sales: Number(row.sales_count || 0), total: Number(row.sales_total || 0), ticket: Number(row.average_ticket || 0), goal: Number(row.goal_progress || 0), photo: row.avatar_url || '' })),
       sales: sales.map(row => ({ id: row.sale_number, uuid: row.id, clientSaleId: row.client_sale_id || row.id, clientId: row.client_id || null, date: row.created_at, client: row.client_name || 'Consumidor final', employee: row.seller_name || '', employeeId: row.seller_id, items: (itemsBySale[row.id] || []).reduce((n, x) => n + Number(x.quantity), 0), amountPaid: Number(row.amount_paid || 0), lastPaymentMethod:row.last_payment_method||'', subtotal: Number(row.subtotal), discountTotal: Number(row.discount), total: Number(row.total), received: row.payment_method === 'Cuenta cliente' ? 0 : Number(row.total), change: 0, payment: row.payment_method, status: row.status || (row.payment_method === 'Cuenta cliente' ? 'pending' : 'completed'), type: row.kind || 'Venta', notes: row.notes || '', receiptItems: (itemsBySale[row.id] || []).map(item => ({ id: item.product_id, productId: item.product_id, code: item.product_code || '', name: item.product_name, qty: Number(item.quantity), quantity: Number(item.quantity), basePrice: Number(item.base_price ?? item.unit_price), price: Number(item.unit_price), unitPrice: Number(item.unit_price), discountType: item.discount_type || 'percent', discountValue: Number(item.discount_value ?? item.discount ?? 0), discount: Number(item.discount || 0), total: Number(item.total) })), syncStatus: 'synced' })),
-      cash: cash.map(row => ({ id: row.id, saleId: row.sale_id || null, date: row.created_at, type: row.kind, description: row.description, amount: Number(row.amount), employee: row.employee_name || '' })), closings: [],
+      cash: cash.map(row => ({ id: row.id, saleId: row.sale_id || null, date: row.created_at, type: row.kind, description: row.description, amount: Number(row.amount), employee: row.employee_name || '' })), closings: (generatedDocuments||[]).filter(row=>row.snapshot?.cashClosing).map(row=>row.snapshot.cashClosing),
       generatedDocuments: (generatedDocuments || []).map(row => ({ id: row.id, clientDocumentId: row.client_document_id, documentNumber: row.document_number, documentType: row.document_type, title: row.title, sourceType: row.source_type, sourceId: row.source_id, periodStart: row.period_start, periodEnd: row.period_end, createdAt: row.created_at, createdBy: row.created_by, snapshot: row.snapshot || {}, syncStatus: 'synced' })),
       auditLogs
     };
@@ -145,6 +149,11 @@
     if (!navigator.onLine) throw Error('Conéctese a internet para registrar el pago');
     return request('/rest/v1/rpc/collect_account_payment', {method:'POST', body:{p_business_id:businessId,p_client_id:payload.clientId,p_sale_id:payload.saleId||null,p_amount:payload.amount,p_method:payload.method,p_note:payload.note||null,p_request_id:payload.requestId}});
   }
+  async function collectSelectedPayments(payload) {
+    if (!isRemote()) return null;
+    if (!navigator.onLine) throw Error('Conéctese a internet para registrar el pago');
+    return request('/rest/v1/rpc/collect_selected_payments', {method:'POST',body:{p_business_id:businessId,p_client_id:payload.clientId,p_payments:payload.payments,p_method:payload.method,p_note:payload.note||null}});
+  }
   async function addCashMovements(movements) {
     if (!isRemote() || !movements.length) return movements;
     if (!navigator.onLine) throw Error('Conéctese a internet para abrir la caja');
@@ -165,5 +174,5 @@
   }
   async function loadDevices() { if (!isRemote() || session?.role !== 'admin') return []; const rows = await request(`${scoped('connected_devices')}&select=*&order=last_seen.desc`); return (rows || []).map(fromSnake); }
 
-  window.GrassiBackend = { login, logout, restoreSession, loadWorkspace, saveProduct, saveClient, saveBusiness, saveSettings, updateCredentials, manageEmployee, recordLedger, registerSale, updateSale, collectAccountPayment, addCashMovements, saveGeneratedDocument, ensureTrainingProduct, addCashMovement, recordAudit, loadAuditLogs, registerDevice, loadDevices, isRemote, getSession: () => session, getBusinessId: () => businessId };
+  window.GrassiBackend = { login, logout, restoreSession, loadWorkspace, saveProduct, saveClient, saveBusiness, saveSettings, updateCredentials, manageEmployee, recordLedger, registerSale, updateSale, collectAccountPayment, collectSelectedPayments, addCashMovements, saveGeneratedDocument, ensureTrainingProduct, addCashMovement, recordAudit, loadAuditLogs, registerDevice, loadDevices, isRemote, getSession: () => session, getBusinessId: () => businessId };
 })();
