@@ -89,8 +89,8 @@ test('clients list shows account data and offers a right-click credit menu', () 
     assert.match(app, new RegExp(action.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
   assert.match(app, /function renderDebtFlow\(\)/);
-  assert.match(app, /async function registerClientPayment\(client,amount,method,note\)/);
-  assert.match(app, /recordLedger\(client\.id,'credit',amount/);
+  assert.match(app, /async function registerClientPayment\(client,amount,method,note,requestId=/);
+  assert.match(app, /GrassiBackend\.collectAccountPayment/);
   assert.match(app, /addCashMovement\(movement\)/);
   assert.match(app, /debtAmountForm/);
   assert.match(app, /debtPaymentForm/);
@@ -98,7 +98,7 @@ test('clients list shows account data and offers a right-click credit menu', () 
   assert.match(styles, /\.debt-methods\{/);
   assert.match(documents, /'client-debt','Demostrativo de deuda del cliente'/);
   assert.match(documents, /function clientDebtRows\(context\)/);
-  assert.match(documents, /entry\.saleId&&s\.uuid&&entry\.saleId===s\.uuid/);
+  assert.match(documents, /entry\.type==='debit'&&\(\(entry\.saleId&&entry\.saleId===\(s\.uuid\|\|s\.id\)/);
 });
 
 test('Minimum is a distinct GRASSI shell and PDV theme', () => {
