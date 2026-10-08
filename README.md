@@ -17,6 +17,9 @@ O projeto usa espanhol como idioma principal e exibe valores em bolivianos (`Bs`
 - cadastro de clientes com foto, classificação, data de nascimento e conta corrente de crédito/débito;
 - lista de clientes com nome, débito/crédito, código, observações e nascimento visíveis já na busca;
 - menu de contexto (botão direito ou botão ⋮ na linha) para pagar a dívida, imprimir demonstrativo de dívida, ver o extrato da conta, adicionar ou corrigir crédito e editar o cliente;
+- pagamento por venda no histórico e na conta do cliente, com quitação total, parcial e status atualizado;
+- confirmação de abertura do caixa com fundo inicial e sangria, modais adaptáveis, clientes em cartões e catálogo oculto;
+- acesso direto sem tutorial automático;
 - cobrança de crediário em quatro passos — conta e movimentações, valor total ou parcial, forma de pagamento e confirmação — lançando o crédito no cliente e a entrada no caixa;
 - venda em conta lançada automaticamente no banco e exibida no extrato do cliente selecionado;
 - cadastro de funcionários com foto e métricas individuais de vendas, faturamento, ticket médio e metas;
