@@ -116,3 +116,13 @@ Os dados incluídos são fictícios e existem apenas para demonstração da inte
 - Botão direito: ações em vendas, compras do cliente, produtos, movimentos de caixa e atalhos gerais. No celular, use o botão de três pontos.
 - Edição de vendas: carregamento paginado preserva os itens de vendas antigas; os pagamentos já recebidos continuam vinculados ao editar produtos, quantidades, preços, descontos, observações e cliente.
 - Caixa do PDV: confirmação de abertura com fundo e sangria; revisão do fechamento com vendas, crediário, pagamentos recebidos, entradas/saídas por método e impressão. Confirmar salva o relatório e retorna ao ERP.
+## Atualização 1.1.3
+
+- **Ventas del día**, no PDV e ERP: data de Cobija, busca por venda/cliente/produto e filtros de pendentes e devoluções.
+- Recebimento total ou parcial com escolha da forma de pagamento.
+- Devolução de produtos por quantidade, incluindo valores fracionados; a prévia separa reembolso e redução de dívida.
+- Cancelamento/exclusão operacional com a senha de supervisor **1234**, validada no servidor. A venda fica identificada no histórico.
+- Reposição de estoque, ajustes de conta, caixa e totais do vendedor na mesma transação, com proteção contra repetição.
+- Vendas canceladas ou totalmente devolvidas deixam de somar nos relatórios. Vendas com devolução não podem ser reeditadas.
+
+Validação: `npm test`, `npm run native:prepare` e `tests/sale-reversals.integration.sql` (fixtures revertidas ao final).
