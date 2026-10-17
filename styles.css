@@ -785,3 +785,4 @@ html body .metric span,html body .detail-grid span,html body label{font-size:15p
 .reference-receipt .reference-receipt-business p{line-height:1.25}
 .reference-receipt .reference-receipt-number{padding:5px 8px}
 .reference-receipt .reference-receipt-number>span{margin-top:2px}
+.reference-receipt .receipt-blank-space{display:block;min-height:38mm;background:#fff;break-inside:avoid}

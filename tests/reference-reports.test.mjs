@@ -19,7 +19,7 @@ assert.match(app, /data-doc-sale-receipt/, 'venda deve oferecer recibo A4');
 assert.match(app, /data-doc-zona-invoice/, 'venda deve oferecer factura de Zona Franca');
 assert.match(studio, /DADOS DO CLIENTE/, 'informe A4 deve seguir o modelo físico enviado');
 assert.match(studio, /PEDIDOS AL CEL\./, 'informe A4 deve manter o rodapé operacional do modelo');
-assert.match(studio, /saleItemsWithBlanks\(sale,8\)/, 'informe A4 deve reservar oito linhas de produtos');
+assert.match(studio, /items=saleReceiptItems\(sale\)/, 'comprovantes devem mostrar somente os produtos da venda');
 
 for (const field of ['zone', 'pointOfSale', 'authorizationCode']) {
   assert.match(app, new RegExp(`name=['"]${field}['"]`), `${field} deve ser configurável`);
