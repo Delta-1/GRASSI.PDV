@@ -74,7 +74,7 @@ test('PDV catalog and cart scroll independently and training product has an imag
   assert.match(backend, /image_url: '\.\/assets\/training-product\.svg'/);
 });
 
-test('clients list shows account data and offers a right-click credit menu', () => {
+test('clients list shows account data and offers a right-click debit and payment menu', () => {
   const documents = read('document-studio.js');
   const backend2 = read('backend.js');
   assert.match(app, /<th>Nacimiento<\/th>/);
@@ -85,7 +85,7 @@ test('clients list shows account data and offers a right-click credit menu', () 
   assert.match(backend2, /birthdate: client\.birthdate \|\| null/);
   assert.match(app, /addEventListener\('contextmenu'/);
   assert.match(app, /function clientRowMenu\(id,x,y\)/);
-  for (const action of ['data-debt-flow', 'data-doc-client-debt', 'data-doc-client-statement', 'data-ledger="adjust"', 'data-client-edit']) {
+  for (const action of ['data-debt-flow', 'data-doc-client-debt', 'data-doc-client-statement', 'data-ledger="debit"', 'data-client-edit']) {
     assert.match(app, new RegExp(action.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
   assert.match(app, /function renderDebtFlow\(\)/);
