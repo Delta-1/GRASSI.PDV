@@ -23,7 +23,7 @@
   appPlugin?.addListener?.('backButton', () => {
     const layer = document.getElementById('layer');
     if (layer && !layer.hidden) {
-      const contextualBack = layer.querySelector('[data-action="back-pos"], [data-action="back-client-picker"], [data-action="back-client"]');
+      const contextualBack = layer.querySelector('[data-action="daily-sales-back"], [data-action="daily-sales"], [data-action="back-pos"], [data-action="back-client-picker"], [data-action="back-client"]');
       (contextualBack || layer.querySelector('[data-action="close-layer"]'))?.click();
       return;
     }
