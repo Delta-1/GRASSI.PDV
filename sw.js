@@ -1,4 +1,4 @@
-const CACHE = 'grassi-shell-v51';
+const CACHE = 'grassi-shell-v52';
 const CORE = [
   './', './index.html', './pdv.html', './styles.css?v=42', './config.js?v=17',
   './backend.js?v=34', './app.js?v=45', './document-studio.js?v=35', './pwa.js?v=17', './import-wizard.js?v=18', './pdv-experience.js?v=28', './native-shell.js?v=1', './manifest.webmanifest',

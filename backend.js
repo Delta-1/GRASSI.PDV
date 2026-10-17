@@ -78,7 +78,7 @@
   async function loadWorkspace() {
     if (!isRemote()) return null;
     await refresh();
-    const [businesses, products, clients, ledger, memberships, sales, items, cash, settings, generatedDocuments] = await Promise.all([
+    const [businesses, products, clients, ledger, memberships, sales, items, cash, settings, generatedDocuments, reversals] = await Promise.all([
       request(`/rest/v1/businesses?select=*&id=eq.${businessId}&limit=1`),
       request(`${scoped('products')}&select=*&order=name.asc`),
       request(`${scoped('clients')}&select=*&order=name.asc`),
@@ -88,7 +88,8 @@
       loadAll(`${scoped('sale_items')}&select=*&order=id.asc`),
       loadAll(`${scoped('cash_movements')}&select=*&order=created_at.desc,id.asc`),
       request(`${scoped('business_settings')}&select=*&limit=1`),
-      request(`${scoped('generated_documents')}&select=*&order=created_at.desc&limit=200`)
+      request(`${scoped('generated_documents')}&select=*&order=created_at.desc&limit=200`),
+      loadAll(`${scoped('sale_reversals')}&select=*&order=created_at.desc,id.asc`)
     ]);
     const business = businesses?.[0] || {};
     let auditLogs = [];
@@ -102,10 +103,10 @@
       products: products.map(row => ({ ...fromSnake(row), id: row.id, image: row.image_url || '', minStock: Number(row.min_stock), wholesale: Number(row.wholesale_price), price: Number(row.price), cost: Number(row.cost), stock: Number(row.stock) })),
       clients: clients.map(row => ({ ...fromSnake(row), id: row.id, photo: row.avatar_url || '', balance: Number(row.balance), purchases: Number(row.purchases), total: Number(row.total_purchased), ledger: (ledgerByClient[row.id] || []).map(entry => ({ id: entry.id, date: entry.effective_at || entry.created_at, type: entry.kind, description: entry.description, amount: Number(entry.amount), paymentMethod: entry.payment_method || '', reference: entry.reference || '', saleId: entry.sale_id || null })) })),
       employees: memberships.map(row => ({ id: row.user_id, name: row.display_name, role: row.job_title || (row.role === 'admin' ? 'Administrador' : 'Funcionario'), email: row.email || '', phone: row.phone || '', document: row.document || '', admin: row.role === 'admin', supervisor: row.supervisor, permissions: row.permissions || {}, mustChangePassword: Boolean(row.must_change_password), active: row.active !== false, sales: Number(row.sales_count || 0), total: Number(row.sales_total || 0), ticket: Number(row.average_ticket || 0), goal: Number(row.goal_progress || 0), photo: row.avatar_url || '' })),
-      sales: sales.map(row => ({ id: row.sale_number, uuid: row.id, clientSaleId: row.client_sale_id || row.id, clientId: row.client_id || null, date: row.created_at, client: row.client_name || 'Consumidor final', employee: row.seller_name || '', employeeId: row.seller_id, items: (itemsBySale[row.id] || []).reduce((n, x) => n + Number(x.quantity), 0), amountPaid: Number(row.amount_paid || 0), lastPaymentMethod:row.last_payment_method||'', subtotal: Number(row.subtotal), discountTotal: Number(row.discount), total: Number(row.total), received: row.payment_method === 'Cuenta cliente' ? 0 : Number(row.total), change: 0, payment: row.payment_method, status: row.status || (row.payment_method === 'Cuenta cliente' ? 'pending' : 'completed'), type: row.kind || 'Venta', notes: row.notes || '', receiptItems: (itemsBySale[row.id] || []).map(item => ({ id: item.product_id, productId: item.product_id, code: item.product_code || '', name: item.product_name, qty: Number(item.quantity), quantity: Number(item.quantity), basePrice: Number(item.base_price ?? item.unit_price), price: Number(item.unit_price), unitPrice: Number(item.unit_price), discountType: item.discount_type || 'percent', discountValue: Number(item.discount_value ?? item.discount ?? 0), discount: Number(item.discount || 0), total: Number(item.total) })), syncStatus: 'synced' })),
-      cash: cash.map(row => ({ id: row.id, saleId: row.sale_id || null, date: row.created_at, type: row.kind, description: row.description, amount: Number(row.amount), employee: row.employee_name || '' })), closings: (generatedDocuments||[]).filter(row=>row.snapshot?.cashClosing).map(row=>row.snapshot.cashClosing),
+      sales: sales.map(row => ({ returnedTotal:Number(row.returned_total||0),refundedTotal:Number(row.refunded_total||0),isDeleted:Boolean(row.is_deleted), id: row.sale_number, uuid: row.id, clientSaleId: row.client_sale_id || row.id, clientId: row.client_id || null, date: row.created_at, client: row.client_name || 'Consumidor final', employee: row.seller_name || '', employeeId: row.seller_id, items: (itemsBySale[row.id] || []).reduce((n, x) => n + Number(x.quantity), 0), amountPaid: Number(row.amount_paid || 0), lastPaymentMethod:row.last_payment_method||'', subtotal: Number(row.subtotal), discountTotal: Number(row.discount), total: Number(row.total), received: row.payment_method === 'Cuenta cliente' ? 0 : Number(row.total), change: 0, payment: row.payment_method, status: row.status || (row.payment_method === 'Cuenta cliente' ? 'pending' : 'completed'), type: row.kind || 'Venta', notes: row.notes || '', receiptItems: (itemsBySale[row.id] || []).map(item => ({ lineId:item.id,returnedQty:Number(item.returned_quantity||0),returnedAmount:Number(item.returned_amount||0), id: item.product_id, productId: item.product_id, code: item.product_code || '', name: item.product_name, qty: Number(item.quantity), quantity: Number(item.quantity), basePrice: Number(item.base_price ?? item.unit_price), price: Number(item.unit_price), unitPrice: Number(item.unit_price), discountType: item.discount_type || 'percent', discountValue: Number(item.discount_value ?? item.discount ?? 0), discount: Number(item.discount || 0), total: Number(item.total) })), syncStatus: 'synced' })),
+      cash: cash.map(row => ({ id: row.id, saleId: row.sale_id || null, date: row.created_at, type: row.kind, description: row.description, amount: Number(row.amount), paymentMethod:row.payment_method||'', employee: row.employee_name || '' })), closings: (generatedDocuments||[]).filter(row=>row.snapshot?.cashClosing).map(row=>row.snapshot.cashClosing),
       generatedDocuments: (generatedDocuments || []).map(row => ({ id: row.id, clientDocumentId: row.client_document_id, documentNumber: row.document_number, documentType: row.document_type, title: row.title, sourceType: row.source_type, sourceId: row.source_id, periodStart: row.period_start, periodEnd: row.period_end, createdAt: row.created_at, createdBy: row.created_by, snapshot: row.snapshot || {}, syncStatus: 'synced' })),
-      auditLogs
+      auditLogs, reversals
     };
   }
 
@@ -161,6 +162,18 @@
     return rows.map(row=>({id:row.id,date:row.created_at,type:row.kind,description:row.description,amount:Number(row.amount),employee:row.employee_name}));
   }
   async function updateSale(payload) { if (!isRemote()) return null; return request('/rest/v1/rpc/update_sale', { method: 'POST', body: { p_business_id: businessId, p_sale_id: payload.saleId, p_client_id: payload.clientId || null, p_items: payload.items, p_notes: payload.notes || null } }); }
+  async function reverseSale(payload) {
+    if (!isRemote()) return null;
+    if (!navigator.onLine) throw Error('Conéctese a internet para cancelar o devolver una venta');
+    await refresh();
+    const result = await request('/rest/v1/rpc/reverse_sale', { method: 'POST', body: {
+      p_business_id: businessId, p_sale_id: payload.saleId, p_action: payload.action,
+      p_items: payload.items, p_method: payload.method, p_reason: payload.reason,
+      p_request_id: payload.requestId, p_pin: payload.pin
+    } });
+    if (result?.error) throw Error(result.error);
+    return result;
+  }
   async function saveGeneratedDocument(record) { if (!isRemote()) return { ...record, syncStatus: 'local' }; return request('/rest/v1/rpc/save_generated_document', { method: 'POST', body: { p_business_id: businessId, p_client_document_id: record.clientDocumentId, p_document_type: record.documentType, p_title: record.title, p_source_type: record.sourceType || null, p_source_id: record.sourceId || null, p_period_start: record.periodStart || null, p_period_end: record.periodEnd || null, p_snapshot: record.snapshot || {} } }); }
   async function ensureTrainingProduct() { if (!isRemote() || session?.role !== 'admin') return null; return upsert('products', { code: 'TEST-000000', ean: null, name: 'Producto test', category: 'Tutorial', stock: 100, min_stock: 0, cost: 0, price: 100, wholesale_price: 100, unit: 'Unidad', notes: 'Producto para practicar el flujo del PDV sin afectar los resultados reales.', image_url: './assets/training-product.svg', active: true }, 'business_id,code'); }
   async function addCashMovement(movement) { return upsert('cash_movements', { kind: movement.type, description: movement.description, amount: movement.amount, employee_name: session?.name || '' }); }
@@ -174,5 +187,5 @@
   }
   async function loadDevices() { if (!isRemote() || session?.role !== 'admin') return []; const rows = await request(`${scoped('connected_devices')}&select=*&order=last_seen.desc`); return (rows || []).map(fromSnake); }
 
-  window.GrassiBackend = { login, logout, restoreSession, loadWorkspace, saveProduct, saveClient, saveBusiness, saveSettings, updateCredentials, manageEmployee, recordLedger, registerSale, updateSale, collectAccountPayment, collectSelectedPayments, addCashMovements, saveGeneratedDocument, ensureTrainingProduct, addCashMovement, recordAudit, loadAuditLogs, registerDevice, loadDevices, isRemote, getSession: () => session, getBusinessId: () => businessId };
+  window.GrassiBackend = { login, logout, restoreSession, loadWorkspace, saveProduct, saveClient, saveBusiness, saveSettings, updateCredentials, manageEmployee, recordLedger, registerSale, updateSale, reverseSale, collectAccountPayment, collectSelectedPayments, addCashMovements, saveGeneratedDocument, ensureTrainingProduct, addCashMovement, recordAudit, loadAuditLogs, registerDevice, loadDevices, isRemote, getSession: () => session, getBusinessId: () => businessId };
 })();
