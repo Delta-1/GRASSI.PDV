@@ -777,16 +777,16 @@ html body .metric span,html body .detail-grid span,html body label{font-size:15p
 .reversal-preview{padding:14px;background:var(--surface,#eef5ff);border-radius:10px;margin:14px 0;line-height:1.7}
 .sale-reversal-history{margin:20px 0;border-left:3px solid #db7c48;padding-left:14px}
 @media(max-width:720px){.daily-sales-modal{width:100%;max-height:100dvh}.daily-sales-filters{grid-template-columns:1fr 1fr}.daily-sales-filters label:nth-child(2){grid-column:1/-1;grid-row:2}.daily-sale-card{padding:12px}.daily-sale-card footer .btn{flex:1 1 43%;white-space:normal}.pdv-head-actions .pos-daily-sales{font-size:12px;padding:7px}.daily-sale-values{gap:10px 18px}}
-/* Compact sales receipt header, on screen and in print. */
-.reference-receipt .reference-receipt-header{min-height:56px;grid-template-columns:56px minmax(0,1fr) 150px}
-.reference-receipt .reference-receipt-logo img,.reference-receipt .reference-logo-placeholder{width:38px;height:38px}
-.reference-receipt .reference-receipt-business{padding:4px 7px;text-align:left}
-.reference-receipt .reference-receipt-business h1{margin-bottom:2px;font-size:18px;font-weight:600;line-height:1.1}
-.reference-receipt .reference-receipt-business p{font-size:11px;line-height:1.15}
+/* Compact, legible sales receipt header, on screen and in print. */
+.reference-receipt .reference-receipt-header{min-height:86px;grid-template-columns:100px minmax(0,1fr) 158px}
+.reference-receipt .reference-receipt-logo img,.reference-receipt .reference-logo-placeholder{width:82px;height:82px}
+.reference-receipt .reference-receipt-business{padding:5px 9px;text-align:left}
+.reference-receipt .reference-receipt-business h1{margin-bottom:3px;font-size:22px;font-weight:700;line-height:1.1}
+.reference-receipt .reference-receipt-business p{font-size:14px;line-height:1.25;overflow-wrap:anywhere}
 .reference-receipt .reference-receipt-number{padding:4px 6px;gap:3px}
 .reference-receipt .reference-receipt-number>span{margin-top:2px}
 .reference-receipt .receipt-blank-space{display:block;min-height:38mm;background:#fff;break-inside:avoid}
 
 .reference-receipt .receipt-business-contact{display:flex;flex-wrap:wrap;gap:2px 14px}
-.reference-receipt .reference-receipt-number>b{font-size:14px;font-weight:600}
-.reference-receipt .reference-receipt-number>span{font-size:11px}
+.reference-receipt .reference-receipt-number>b{font-size:16px;font-weight:700;overflow-wrap:anywhere}
+.reference-receipt .reference-receipt-number>span{font-size:12px;line-height:1.25}
