@@ -132,7 +132,9 @@ function referenceCashSales(context,config){const bounds=closingRange(context,co
 function cashPaymentSummary(sales,movements){
  const methods=['Efectivo','PIX','QR','Cheque'],manual=movements.filter(movement=>!/^Venta\b/i.test(String(movement.description||''))),rows=methods.map(method=>({method,sales:0,returns:0,sangria:0,supplement:0,total:0})),other={method:'Otros medios registrados',sales:0,returns:0,sangria:0,supplement:0,total:0};
  const rowFor=method=>rows.find(row=>row.method===method)||other;
- for(const sale of sales){if(sale.payment!=='Cuenta cliente')rowFor(sale.payment).sales+=Number(sale.total||0)}
+ const saleMovements=movements.filter(movement=>movement.type==='in'&&/^Venta\b/i.test(String(movement.description||'')));
+ if(saleMovements.length){for(const movement of saleMovements)rowFor(cashMethod(movement)).sales+=Number(movement.amount||0)}
+ else for(const sale of sales){if(sale.payment!=='Cuenta cliente')rowFor(sale.payment).sales+=Number(sale.total||0)}
  for(const movement of manual){const row=rowFor(cashMethod(movement)),amount=Number(movement.amount||0),description=String(movement.description||'');if(movement.type==='in'){if(/^Pago\b/i.test(description))row.sales+=amount;else row.supplement+=amount}else if(movement.type==='out'){if(/^Reembolso\b/i.test(description))row.returns+=amount;else row.sangria+=amount}}
  // Keep old or imported payment amounts in the total without listing unused card types.
  if(other.sales||other.returns||other.sangria||other.supplement)rows.push(other);

@@ -31,3 +31,10 @@ test('historical card and transfer amounts remain in totals without repeated car
  assert.equal(rows.length,5);assert.equal(rows[4].method,'Otros medios registrados');
  assert.equal(rows[4].total,100);assert.equal(rows.reduce((n,row)=>n+row.total,0),100);
 });
+
+test('cancelled sales still reconcile original receipt and cheque refund in closing',()=>{
+ const movements=[{type:'in',amount:100,description:'Venta V9 — Cheque'},
+ {type:'out',amount:100,paymentMethod:'Cheque',description:'Reembolso Cheque — Venta V9'}];
+ const rows=fixture().cashPaymentSummary([],movements),cheque=rows.find(row=>row.method==='Cheque');
+ assert.equal(cheque.sales,100);assert.equal(cheque.returns,100);assert.equal(cheque.total,0);
+});
